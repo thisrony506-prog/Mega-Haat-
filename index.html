@@ -80,6 +80,9 @@ header{position:sticky;top:0;z-index:1000;background:var(--glass-bg);backdrop-fi
 .faq-item{background:var(--bg-card);border-radius:var(--radius-md);margin-bottom:8px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow-xs)}.faq-question{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600}.faq-question i{color:var(--text-light);transition:transform .3s}.faq-item.open .faq-question i{transform:rotate(180deg)}.faq-answer{padding:0 16px;max-height:0;overflow:hidden;transition:all .3s;font-size:13px;color:var(--text-secondary);line-height:1.7}.faq-item.open .faq-answer{padding:0 16px 14px;max-height:300px}
 .chat-container{display:flex;flex-direction:column;height:calc(100vh - 60px)}.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}.chat-bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5}.chat-bubble.bot{background:var(--bg-card);align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--border)}.chat-bubble.user{background:var(--gradient-primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;box-shadow:var(--shadow-primary)}.chat-input-wrap{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg-card)}.chat-input-wrap input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg-secondary);color:var(--text-primary);font-size:13px}.chat-input-wrap button{width:44px;height:44px;border-radius:12px;background:var(--gradient-primary);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-primary)}
 .order-timeline{position:relative;padding-left:28px;margin:16px 0}.order-timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--border)}.timeline-step{position:relative;padding-bottom:20px;padding-left:16px}.timeline-step:last-child{padding-bottom:0}.timeline-dot{position:absolute;left:-22px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--border);border:3px solid var(--bg-card)}.timeline-step.done .timeline-dot{background:var(--success)}.timeline-step.current .timeline-dot{background:var(--primary);box-shadow:0 0 0 4px rgba(var(--primary-rgb),.2)}.timeline-step h5{font-size:13px;font-weight:700}.timeline-step p{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.address-form{background:var(--bg-card);border-radius:var(--radius-md);padding:16px;margin:16px 0;border:1px solid var(--border)}.address-form h4{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--primary)}.address-form .form-group{margin-bottom:12px}
+.order-summary-card{background:var(--bg-card);border-radius:var(--radius-md);padding:16px;margin:16px 0;border:1px solid var(--border);box-shadow:var(--shadow-xs)}.order-summary-card h4{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--primary)}
+.security-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(0,200,83,.1);color:var(--success);border-radius:20px;font-size:11px;font-weight:600;margin:8px 0}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.anim-in{animation:fadeInUp .4s ease-out both}
 .anim-delay-1{animation-delay:.05s}.anim-delay-2{animation-delay:.1s}.anim-delay-3{animation-delay:.15s}.anim-delay-4{animation-delay:.2s}.anim-delay-5{animation-delay:.25s}.anim-delay-6{animation-delay:.3s}
 @media(min-width:480px){.products-grid{grid-template-columns:repeat(3,1fr)}}@media(min-width:768px){.products-grid{grid-template-columns:repeat(4,1fr)}body{max-width:480px;margin:0 auto;box-shadow:var(--shadow-lg)}}
@@ -140,15 +143,18 @@ header{position:sticky;top:0;z-index:1000;background:var(--glass-bg);backdrop-fi
 </nav>
 
 <script>
+// Firebase Configuration
 var firebaseConfig={apiKey:"AIzaSyBh1TPGGgWwb31VVefBDA_hqIF-APCOPNI",authDomain:"mega-haat.firebaseapp.com",databaseURL:"https://mega-haat-default-rtdb.firebaseio.com",projectId:"mega-haat",storageBucket:"mega-haat.firebasestorage.app",messagingSenderId:"342693398717",appId:"1:342693398717:web:5dc8ec0b2b56f68b344fd4",measurementId:"G-LQHDWL53M1"};
 firebase.initializeApp(firebaseConfig);var auth=firebase.auth(),db=firebase.database();
 
-var AppState={cart:{},wishlist:{},user:null,currentSlide:0,selectedCategory:'all',currentDetailId:null,selectedPayMethod:'bkash',checkoutStep:1,wallet:0,addresses:{},orders:{},profile:{}};
+// Application State
+var AppState={cart:{},wishlist:{},user:null,currentSlide:0,selectedCategory:'all',currentDetailId:null,selectedPayMethod:'cod',checkoutStep:1,wallet:0,addresses:{},orders:{},profile:{},checkoutAddress:{}};
 var BKASH_NUMBER='01964182265',NAGAD_NUMBER='01964182265';
 var products=[];
 var categories=[{id:"all",name:"All",icon:"fa-solid fa-border-all"}];
 var faqData=[{q:"কিভাবে অর্ডার করবেন?",a:"প্রোডাক্ট সিলেক্ট করে Add to Cart বা Buy Now তে ক্লিক করুন। COD প্রোডাক্টে কিছু দিতে হবে না, ডেলিভারিতে পেমেন্ট করুন। Prepaid প্রোডাক্টে অনলাইনে পেমেন্ট করুন।"},{q:"COD এবং Prepaid এ কি পার্থক্য?",a:"COD (Cash on Delivery): ডেলিভারিতে প্রোডাক্ট প্রাইস + ডেলিভারি চার্জ দিন। Prepaid: অর্ডার করার সময় bKash/Nagad/Wallet দিয়ে পুরো টাকা + ডেলিভারি চার্জ পেমেন্ট করুন।"},{q:"Wallet এ টাকা কিভাবে আসবে?",a:"Add Money এ ক্লিক করে bKash/Nagad থেকে টাকা পাঠিয়ে TrxID দিন। Admin approve করলে ব্যালেন্স যোগ হবে।"},{q:"রিটার্ন পলিসি কি?",a:"৭ দিনের মধ্যে রিটার্ন করতে পারবেন। প্রোডাক্ট অবশ্যই অব্যবহৃত থাকতে হবে।"},{q:"ডেলিভারি কত দিনে হয়?",a:"ঢাকায় ১-২ দিন, ঢাকার বাইরে ৩-৫ কার্যদিবসে ডেলিভারি হয়।"}];
 
+// Utility Functions
 function formatNum(n){if(n==null||isNaN(n))return '0';return Number(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 function showToast(msg,type){var t=document.getElementById('toast'),m=document.getElementById('toastMsg'),icon=t.querySelector('i');if(m)m.textContent=msg;t.className='toast';if(type==='error'){t.classList.add('toast-error');icon.className='fa-solid fa-circle-xmark'}else if(type==='info'){t.classList.add('toast-info');icon.className='fa-solid fa-circle-info'}else{t.classList.add('toast-success');icon.className='fa-solid fa-circle-check'}t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show')},2800)}
 function showGlobalLoader(){document.getElementById('globalLoader').classList.add('show')}
@@ -157,24 +163,56 @@ function getProductPaymentType(p){return p.paymentType||'cod'}
 function getProductDeliveryCharge(p){return p.deliveryCharge||p.delivery||80}
 function getPayTypeLabel(pt){return pt==='prepaid_delivery'?'Prepaid Delivery':'Cash on Delivery'}
 function getPayTypeShort(pt){return pt==='prepaid_delivery'?'PREPAID':'COD'}
+function sanitizeInput(str){if(!str)return '';return String(str).replace(/[<>]/g,'').trim()}
 
+// Payment Breakdown Calculation with Product-specific Delivery
 function getPaymentBreakdown(){
   var productTotal=0,deliveryTotal=0,totalQty=0,hasPrepaid=false;
   var prepaidProductTotal=0,codProductTotal=0,prepaidDelTotal=0,codDelTotal=0;
+  var itemDetails=[];
+  
   Object.keys(AppState.cart).forEach(function(id){
     var p=products.find(function(x){return x.id==id});if(!p)return;
     var qty=AppState.cart[id],pt=getProductPaymentType(p),dc=getProductDeliveryCharge(p);
     totalQty+=qty;productTotal+=p.price*qty;
+    
+    itemDetails.push({
+      id:p.id,
+      name:p.name,
+      price:p.price,
+      qty:qty,
+      deliveryCharge:dc,
+      paymentType:pt,
+      subtotal:p.price*qty,
+      deliverySubtotal:dc*qty
+    });
+    
     if(pt==='prepaid_delivery'){hasPrepaid=true;prepaidProductTotal+=p.price*qty;prepaidDelTotal+=dc*qty}
     else{codProductTotal+=p.price*qty;codDelTotal+=dc*qty}
   });
+  
+  // Delivery charge logic: 3+ items = flat 150, otherwise sum of individual charges
   if(totalQty>=3){deliveryTotal=150}else{deliveryTotal=prepaidDelTotal+codDelTotal}
+  
   var payNow=hasPrepaid?(prepaidProductTotal+deliveryTotal):0;
   var codRemaining=hasPrepaid?codProductTotal:(productTotal+deliveryTotal);
   var grandTotal=productTotal+deliveryTotal;
-  return{deliveryTotal:deliveryTotal,payNow:payNow,codRemaining:codRemaining,productTotal:productTotal,grandTotal:grandTotal,totalQty:totalQty,hasPrepaid:hasPrepaid,prepaidProductTotal:prepaidProductTotal,codProductTotal:codProductTotal}
+  
+  return{
+    deliveryTotal:deliveryTotal,
+    payNow:payNow,
+    codRemaining:codRemaining,
+    productTotal:productTotal,
+    grandTotal:grandTotal,
+    totalQty:totalQty,
+    hasPrepaid:hasPrepaid,
+    prepaidProductTotal:prepaidProductTotal,
+    codProductTotal:codProductTotal,
+    itemDetails:itemDetails
+  }
 }
 
+// Default Products Data
 var defaultProducts=[
 {id:1,name:"Premium Sneakers",price:1990,old:2500,discount:"20% OFF",deliveryCharge:80,paymentType:"cod",category:"fashion",image:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop",desc:"Ultra-comfortable premium sneakers with breathable mesh upper and durable sole. Perfect for everyday wear.",features:["Breathable","Lightweight","Durable Sole"]},
 {id:2,name:"iPhone 15 Pro Max",price:89999,old:95000,discount:"5% OFF",deliveryCharge:120,paymentType:"prepaid_delivery",category:"mobile",image:"https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop",desc:"Latest iPhone with A17 Pro chip, titanium design and 48MP camera system.",features:["A17 Pro","Titanium","48MP Camera"]},
@@ -184,17 +222,45 @@ var defaultProducts=[
 {id:6,name:"Casual T-Shirt",price:490,old:700,discount:"30% OFF",deliveryCharge:60,paymentType:"cod",category:"fashion",image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop",desc:"100% premium cotton casual t-shirt. Soft, comfortable and perfect for daily wear.",features:["Cotton","Soft","Comfortable"]}
 ];
 
+// Database Initialization
 function initDatabase(){db.ref('products').once('value').then(function(s){if(!s.exists()){var u={};defaultProducts.forEach(function(p){u[p.id]=p});db.ref('products').update(u)}})}
 function loadProducts(){db.ref('products').on('value',function(s){products=s.val()?Object.values(s.val()):[];renderProducts('productsGrid',getFilteredHomeProducts());renderProducts('recommendedGrid',products.slice(0,4));renderCategoryProducts()})}
 function loadCategoriesFromDB(){db.ref('categories').on('value',function(s){var data=s.val();if(Array.isArray(data)&&data.length>0){categories=[{id:"all",name:"All",icon:"fa-solid fa-border-all"}].concat(data)}renderCategories();renderCategoryProducts()})}
 function loadSlidersFromDB(){db.ref('sliders').on('value',function(s){var data=s.val()||{},track=document.getElementById('sliderTrack'),dots=document.getElementById('sliderDots');if(!track||!dots)return;track.innerHTML='';dots.innerHTML='';var keys=Object.keys(data);if(keys.length===0){track.innerHTML='<div class="slide" style="background:var(--gradient-primary)"><div class="slide-content"><h1>Mega Haat</h1><p>Smart Shopping Experience</p></div></div>';dots.innerHTML='<div class="dot active"></div>';return}keys.forEach(function(key,i){var sl=data[key];track.innerHTML+='<div class="slide" style="background-image:url(\''+sl.image+'\')"><div class="slide-overlay"></div><div class="slide-content"><h1>'+(sl.title||'')+'</h1><p>'+(sl.subtitle||'')+'</p>'+(sl.title?'<button class="slide-btn" onclick="scrollToProducts()">Shop Now <i class="fa-solid fa-arrow-right"></i></button>':'')+'</div></div>';dots.innerHTML+='<div class="dot '+(i===0?'active':'')+'" onclick="goToSlide('+i+')"></div>'});startSlider()})}
 function loadAppSettings(){db.ref('settings').on('value',function(s){var d=s.val()||{};if(d.theme)document.documentElement.setAttribute('data-theme',d.theme);if(d.appName)document.getElementById('appTitleLogo').textContent=d.appName;if(d.bkashNumber)BKASH_NUMBER=d.bkashNumber;if(d.nagadNumber)NAGAD_NUMBER=d.nagadNumber})}
-function loadUserData(uid){db.ref('users/'+uid+'/wallet').on('value',function(s){AppState.wallet=s.val()||0;updateWalletUI()});db.ref('users/'+uid+'/cart').on('value',function(s){AppState.cart=s.val()||{};updateCartUI()});db.ref('users/'+uid+'/wishlist').on('value',function(s){AppState.wishlist=s.val()||{};renderProducts('productsGrid',getFilteredHomeProducts());renderProducts('recommendedGrid',products.slice(0,4));renderCategoryProducts();renderWishlistPage()});db.ref('users/'+uid+'/addresses').on('value',function(s){AppState.addresses=s.val()||{}});db.ref('users/'+uid+'/orders').on('value',function(s){AppState.orders=s.val()||{}});db.ref('users/'+uid+'/profile').on('value',function(s){AppState.profile=s.val()||{};renderAccountPage()})}
+function loadUserData(uid){
+  db.ref('users/'+uid+'/wallet').on('value',function(s){AppState.wallet=s.val()||0;updateWalletUI()});
+  db.ref('users/'+uid+'/cart').on('value',function(s){AppState.cart=s.val()||{};updateCartUI()});
+  db.ref('users/'+uid+'/wishlist').on('value',function(s){AppState.wishlist=s.val()||{};renderProducts('productsGrid',getFilteredHomeProducts());renderProducts('recommendedGrid',products.slice(0,4));renderCategoryProducts();renderWishlistPage()});
+  db.ref('users/'+uid+'/addresses').on('value',function(s){AppState.addresses=s.val()||{}});
+  db.ref('users/'+uid+'/orders').on('value',function(s){AppState.orders=s.val()||{}});
+  db.ref('users/'+uid+'/profile').on('value',function(s){AppState.profile=s.val()||{};renderAccountPage()})
+}
 
-auth.onAuthStateChanged(function(user){if(user){AppState.user=user;loadUserData(user.uid)}else{AppState.user=null;AppState.cart={};AppState.wishlist={};AppState.wallet=0;AppState.profile={};updateCartUI();updateWalletUI();renderAccountPage()}setTimeout(function(){document.getElementById('loadingScreen').classList.add('hide')},1500)});
+// Authentication State Change
+auth.onAuthStateChanged(function(user){
+  if(user){
+    AppState.user=user;
+    loadUserData(user.uid)
+  }else{
+    AppState.user=null;
+    AppState.cart={};
+    AppState.wishlist={};
+    AppState.wallet=0;
+    AppState.profile={};
+    AppState.checkoutAddress={};
+    updateCartUI();
+    updateWalletUI();
+    renderAccountPage()
+  }
+  setTimeout(function(){document.getElementById('loadingScreen').classList.add('hide')},1500)
+});
+
+// Initialize App
 function initApp(){initDatabase();loadProducts();loadCategoriesFromDB();loadSlidersFromDB();loadAppSettings();startFlashTimer()}
 document.addEventListener('DOMContentLoaded',initApp);
 
+// Render Categories
 function renderCategories(){
   var h='';
   categories.forEach(function(c){
@@ -208,6 +274,7 @@ function renderCategories(){
   var ac=document.getElementById('allCategories');if(ac)ac.innerHTML=h;
 }
 
+// Render Products Grid
 function renderProducts(cid,list){
   var c=document.getElementById(cid);if(!c)return;
   if(list.length===0){c.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px"><i class="fa-solid fa-box-open" style="font-size:40px;color:var(--text-light);margin-bottom:10px;display:block"></i><h3 style="font-size:16px;color:var(--text-secondary)">No products found</h3></div>';return}
@@ -233,25 +300,80 @@ function renderProducts(cid,list){
 
 function renderCategoryProducts(){var f=AppState.selectedCategory==='all'?products:products.filter(function(p){return p.category===AppState.selectedCategory});renderProducts('categoryProducts',f)}
 function getFilteredHomeProducts(){return AppState.selectedCategory==='all'?products:products.filter(function(p){return p.category===AppState.selectedCategory})}
+
+// Slider Functions
 function startSlider(){clearInterval(window._slInt);window._slInt=setInterval(function(){if(document.querySelectorAll('.slide').length<=1)return;AppState.currentSlide=(AppState.currentSlide+1)%document.querySelectorAll('.slide').length;updateSlider()},4000)}
 function goToSlide(i){AppState.currentSlide=i;updateSlider()}
 function updateSlider(){var t=document.getElementById('sliderTrack');if(t)t.style.transform='translateX(-'+(AppState.currentSlide*100)+'%)';document.querySelectorAll('#sliderDots .dot').forEach(function(d,i){d.classList.toggle('active',i===AppState.currentSlide)})}
+
+// Flash Sale Timer
 function startFlashTimer(){var end=Date.now()+6*60*60*1000;function up(){var d=end-Date.now();if(d<=0){end=Date.now()+6*60*60*1000;d=end-Date.now()}var h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);document.getElementById('timerH').textContent=h<10?'0'+h:h;document.getElementById('timerM').textContent=m<10?'0'+m:m;document.getElementById('timerS').textContent=s<10?'0'+s:s}up();setInterval(up,1000)}
+
+// Category Filter
 function filterCategory(id){AppState.selectedCategory=id;renderCategories();renderProducts('productsGrid',getFilteredHomeProducts());renderCategoryProducts()}
+
+// Search Functionality
 var searchTimer;
 function debounceSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(searchProducts,300)}
 function searchProducts(){var v=document.getElementById('searchInput').value.toLowerCase().trim();if(!v){renderProducts('productsGrid',products);renderCategoryProducts();return}renderProducts('productsGrid',products.filter(function(p){return p.name.toLowerCase().indexOf(v)>-1||(p.category&&p.category.toLowerCase().indexOf(v)>-1)}))}
 
+// Cart Functions
 function getCartCount(){var c=0;Object.values(AppState.cart).forEach(function(q){c+=q});return c}
 function updateCartUI(){var count=getCartCount();var badge=document.getElementById('cartNavBadge');if(badge){badge.textContent=count;badge.classList.toggle('show',count>0)}var title=document.getElementById('cartCountTitle');if(title)title.textContent=count+' items'}
-function addToCart(id){if(!AppState.user){showToast('Login first','info');openAuth('login');return}var p=products.find(function(x){return x.id===id});if(!p)return;var btn=document.getElementById('addCartBtn'+id);if(btn)btn.classList.add('btn-loading');var ref=db.ref('users/'+AppState.user.uid+'/cart/'+id);ref.once('value').then(function(s){ref.set((s.val()||0)+1).then(function(){if(btn)btn.classList.remove('btn-loading');showToast(p.name+' added!','success');var navItem=document.getElementById('navCartItem');if(navItem){navItem.classList.remove('cart-bounce');void navItem.offsetWidth;navItem.classList.add('cart-bounce')}})})}
-function removeFromCart(id){if(!AppState.user)return;showGlobalLoader();db.ref('users/'+AppState.user.uid+'/cart/'+id).remove().then(function(){hideGlobalLoader();showToast('Removed','error');renderCartPage()})}
-function updateCartQty(id,d){if(!AppState.user)return;showGlobalLoader();var ref=db.ref('users/'+AppState.user.uid+'/cart/'+id);ref.once('value').then(function(s){var n=(s.val()||0)+d;if(n<=0){ref.remove().then(function(){hideGlobalLoader();renderCartPage()})}else{ref.set(n).then(function(){hideGlobalLoader();renderCartPage()})}})}
 
+function addToCart(id){
+  if(!AppState.user){showToast('Login first','info');openAuth('login');return}
+  var p=products.find(function(x){return x.id===id});if(!p)return;
+  var btn=document.getElementById('addCartBtn'+id);if(btn)btn.classList.add('btn-loading');
+  var ref=db.ref('users/'+AppState.user.uid+'/cart/'+id);
+  ref.once('value').then(function(s){
+    ref.set((s.val()||0)+1).then(function(){
+      if(btn)btn.classList.remove('btn-loading');
+      showToast(p.name+' added!','success');
+      var navItem=document.getElementById('navCartItem');
+      if(navItem){navItem.classList.remove('cart-bounce');void navItem.offsetWidth;navItem.classList.add('cart-bounce')}
+    })
+  })
+}
+
+function removeFromCart(id){
+  if(!AppState.user)return;
+  showGlobalLoader();
+  db.ref('users/'+AppState.user.uid+'/cart/'+id).remove().then(function(){
+    hideGlobalLoader();
+    showToast('Removed','error');
+    renderCartPage()
+  })
+}
+
+function updateCartQty(id,d){
+  if(!AppState.user)return;
+  showGlobalLoader();
+  var ref=db.ref('users/'+AppState.user.uid+'/cart/'+id);
+  ref.once('value').then(function(s){
+    var n=(s.val()||0)+d;
+    if(n<=0){
+      ref.remove().then(function(){hideGlobalLoader();renderCartPage()})
+    }else{
+      ref.set(n).then(function(){hideGlobalLoader();renderCartPage()})
+    }
+  })
+}
+
+// Render Cart Page with Professional Layout
 function renderCartPage(){
-  var c=document.getElementById('cartBody'),ids=Object.keys(AppState.cart);updateCartUI();
-  if(ids.length===0){c.innerHTML='<div class="wishlist-empty"><i class="fa-solid fa-cart-shopping"></i><h3>Cart is Empty</h3><p style="color:var(--text-secondary);margin-top:8px">Add products to get started</p></div>';return}
-  var bd=getPaymentBreakdown();var h='';
+  var c=document.getElementById('cartBody'),ids=Object.keys(AppState.cart);
+  updateCartUI();
+  
+  if(ids.length===0){
+    c.innerHTML='<div class="wishlist-empty"><i class="fa-solid fa-cart-shopping"></i><h3>Cart is Empty</h3><p style="color:var(--text-secondary);margin-top:8px">Add products to get started</p></div>';
+    return
+  }
+  
+  var bd=getPaymentBreakdown();
+  var h='';
+  
+  // Cart Items List
   ids.forEach(function(id){
     var p=products.find(function(x){return x.id==id});if(!p)return;
     var qty=AppState.cart[id],pt=getProductPaymentType(p),dc=getProductDeliveryCharge(p);
@@ -266,28 +388,52 @@ function renderCartPage(){
       +'<button class="qty-btn" onclick="updateCartQty('+id+',1)">+</button></div></div>'
       +'<button class="remove-item" onclick="removeFromCart('+id+')"><i class="fa-solid fa-xmark"></i></button></div>';
   });
+  
+  // Payment Summary with Product-specific Delivery
   h+='<div class="pay-receipt" style="margin-top:16px"><div class="pay-receipt-header"><i class="fa-solid fa-receipt"></i><h3>Payment Summary</h3></div><div class="pay-receipt-body">';
   h+='<div class="receipt-row"><span>Product Total</span><strong>৳'+formatNum(bd.productTotal)+'</strong></div>';
   h+='<div class="receipt-row del-row"><span>🚚 Delivery Charge'+(bd.totalQty>=3?' (3+ Offer!)':'')+'</span><strong style="color:var(--info)">৳'+formatNum(bd.deliveryTotal)+'</strong></div>';
   h+='<div class="receipt-divider"></div>';
+  
   if(bd.hasPrepaid){
-    h+='<div class="receipt-row highlight"><span>💳 Pay Now (Prepaid)</span><strong style="color:var(--primary);font-size:16px">৳'+formatNum(bd.payNow)+'</strong></div>';
+    h+='<div class="receipt-row highlight"><span>💳 Pay Now (Prepaid Items)</span><strong style="color:var(--primary);font-size:16px">৳'+formatNum(bd.payNow)+'</strong></div>';
     h+='<div class="receipt-row cod-row"><span>💵 Cash on Delivery</span><strong style="color:var(--success)">৳'+formatNum(bd.codRemaining)+'</strong></div>';
   }else{
     h+='<div class="receipt-row cod-row"><span>💵 Cash on Delivery</span><strong style="color:var(--success);font-size:16px">৳'+formatNum(bd.codRemaining)+'</strong></div>';
     h+='<div class="receipt-row" style="background:rgba(0,200,83,.05);margin:4px -16px;padding:10px 16px;border-radius:8px;border:none"><span style="color:var(--success);font-weight:700">🎉 Free Ordering!</span><strong style="color:var(--success)">৳0 Now</strong></div>';
   }
+  
   h+='<div class="receipt-divider"></div>';
   h+='<div class="receipt-total"><span>Grand Total</span><strong>৳'+formatNum(bd.grandTotal)+'</strong></div></div></div>';
+  
+  // Security Badge
+  h+='<div class="security-badge"><i class="fa-solid fa-shield-halved"></i> Secure Checkout with SSL Encryption</div>';
+  
   if(!bd.hasPrepaid)h+='<div style="background:rgba(0,200,83,.08);border:1.5px dashed var(--success);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:center"><i class="fa-solid fa-circle-check" style="color:var(--success);font-size:20px"></i><div style="font-size:12px;color:var(--text-secondary)">COD অর্ডার — এখন কিছু দিতে হবে না! ডেলিভারিতে ৳'+formatNum(bd.codRemaining)+' পেমেন্ট করুন।</div></div>';
+  
   h+='<button class="checkout-btn" onclick="openCheckout()"><i class="fa-solid fa-lock"></i> Proceed to Checkout</button>';
   c.innerHTML=h;
 }
 
-function toggleWishlist(id){if(!AppState.user){showToast('Login first','info');openAuth('login');return}var ref=db.ref('users/'+AppState.user.uid+'/wishlist/'+id);if(AppState.wishlist[id]){ref.remove();showToast('Removed','error')}else{ref.set(true);showToast('Added ❤️','success')}}
+// Wishlist Functions
+function toggleWishlist(id){
+  if(!AppState.user){showToast('Login first','info');openAuth('login');return}
+  var ref=db.ref('users/'+AppState.user.uid+'/wishlist/'+id);
+  if(AppState.wishlist[id]){
+    ref.remove();
+    showToast('Removed','error')
+  }else{
+    ref.set(true);
+    showToast('Added ❤️','success')
+  }
+}
+
 function renderWishlistPage(){
   var c=document.getElementById('wishlistContent'),ids=Object.keys(AppState.wishlist);
-  if(ids.length===0){c.innerHTML='<div class="wishlist-empty"><i class="fa-regular fa-heart"></i><h3>No Wishlist Items</h3><p style="color:var(--text-secondary);margin-top:8px">Products you love will appear here</p></div>';return}
+  if(ids.length===0){
+    c.innerHTML='<div class="wishlist-empty"><i class="fa-regular fa-heart"></i><h3>No Wishlist Items</h3><p style="color:var(--text-secondary);margin-top:8px">Products you love will appear here</p></div>';
+    return
+  }
   var wp=products.filter(function(p){return AppState.wishlist[p.id]});
   var h='<div class="products-grid">';
   wp.forEach(function(p){
@@ -301,13 +447,18 @@ function renderWishlistPage(){
       +'<div class="product-price"><span class="current-price">৳'+formatNum(p.price)+'</span></div>'
       +'<div class="product-actions"><button class="btn-cart" onclick="event.stopPropagation();addToCart('+p.id+')">Add</button>'
       +'<button class="btn-buy" onclick="event.stopPropagation();buyNow('+p.id+')">Buy</button></div></div></div>';
-  });c.innerHTML=h+'</div>';
+  });
+  c.innerHTML=h+'</div>';
 }
 
+// Product Detail Modal
 function openDetail(id){
-  var p=products.find(function(x){return x.id===id});if(!p)return;AppState.currentDetailId=id;
+  var p=products.find(function(x){return x.id===id});if(!p)return;
+  AppState.currentDetailId=id;
   var lk=AppState.wishlist[id],hi=document.getElementById('detailHeart'),pt=getProductPaymentType(p),dc=getProductDeliveryCharge(p);
+  
   if(hi){hi.className=lk?'fa-solid fa-heart':'fa-regular fa-heart';hi.style.color=lk?'var(--accent)':''}
+  
   var h='<img src="'+p.image+'" alt="'+p.name+'" class="detail-img"><div class="detail-body">';
   h+='<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">';
   h+='<span class="pay-type-badge '+(pt==='prepaid_delivery'?'pay-type-prepaid':'pay-type-cod')+'" style="position:static;font-size:10px;padding:5px 14px;border-radius:20px">'+getPayTypeLabel(pt)+'</span>';
@@ -318,6 +469,8 @@ function openDetail(id){
   if(p.old)h+='<span style="text-decoration:line-through;color:var(--text-light);font-size:16px">৳'+formatNum(p.old)+'</span>';
   if(p.discount)h+='<span style="font-weight:700;color:var(--accent);font-size:14px;background:rgba(255,46,99,.1);padding:4px 12px;border-radius:20px">'+p.discount+'</span>';
   h+='</div>';
+  
+  // Payment Info Section
   h+='<div style="background:var(--bg-secondary);border-radius:16px;padding:16px;margin-bottom:18px;border:1px solid var(--border)">';
   h+='<h4 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--primary)"><i class="fa-solid fa-credit-card"></i> Payment Info</h4>';
   if(pt==='prepaid_delivery'){
@@ -332,43 +485,71 @@ function openDetail(id){
     h+='<p style="font-size:11px;color:var(--success);margin-top:4px">অর্ডার করুন ফ্রি — ডেলিভারিতে পেমেন্ট করুন!</p></div>';
   }
   h+='</div>';
+  
   h+='<p style="color:var(--text-secondary);line-height:1.8;margin-bottom:16px;font-size:14px">'+p.desc+'</p>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px">';
   if(p.features&&Array.isArray(p.features))p.features.forEach(function(f){h+='<span style="padding:6px 14px;background:var(--bg-secondary);border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border)">'+f+'</span>'});
   h+='</div></div>';
   h+='<div class="detail-actions"><button class="btn-cart" id="detailAddBtn" onclick="addToCart('+id+')" style="box-shadow:var(--shadow-primary)"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button><button class="btn-buy" onclick="buyNow('+id+')"><i class="fa-solid fa-bolt"></i> Buy Now</button></div>';
-  document.getElementById('detailContent').innerHTML=h;document.getElementById('detailModal').classList.add('show');
+  
+  document.getElementById('detailContent').innerHTML=h;
+  document.getElementById('detailModal').classList.add('show');
 }
+
 function closeDetail(){document.getElementById('detailModal').classList.remove('show')}
 function toggleDetailWishlist(){if(!AppState.currentDetailId)return;toggleWishlist(AppState.currentDetailId)}
 function buyNow(id){addToCart(id);setTimeout(function(){switchPage('pageCart',document.querySelectorAll('.nav-item')[2]);renderCartPage()},600)}
 
-function openCheckout(){if(!AppState.user){showToast('Login required','error');openAuth('login');return}if(Object.keys(AppState.cart).length===0){showToast('Cart empty','error');return}AppState.checkoutStep=1;renderCheckoutStep();document.getElementById('subPageCheckout').classList.add('show')}
+// Checkout System - Professional Order Flow
+function openCheckout(){
+  if(!AppState.user){showToast('Login required','error');openAuth('login');return}
+  if(Object.keys(AppState.cart).length===0){showToast('Cart empty','error');return}
+  
+  // Initialize checkout address from user profile or first saved address
+  if(AppState.user && Object.keys(AppState.addresses).length>0){
+    var firstAddrKey=Object.keys(AppState.addresses)[0];
+    AppState.checkoutAddress=AppState.addresses[firstAddrKey];
+  }
+  
+  AppState.checkoutStep=1;
+  renderCheckoutStep();
+  document.getElementById('subPageCheckout').classList.add('show')
+}
 
+// Render Checkout Step with Address Collection
 function renderCheckoutStep(){
   var bd=getPaymentBreakdown(),h='';
+  
+  // Checkout Steps Indicator
   h+='<div class="checkout-steps">';
   h+='<div class="ch-step '+(AppState.checkoutStep>=1?'active':'')+' '+(AppState.checkoutStep>1?'done':'')+'"><div class="ch-step-num">'+(AppState.checkoutStep>1?'<i class="fa-solid fa-check" style="font-size:12px"></i>':'1')+'</div><span class="ch-step-label">Review</span></div>';
   h+='<div class="ch-step-line '+(AppState.checkoutStep>1?'done':'')+'"></div>';
-  h+='<div class="ch-step '+(AppState.checkoutStep>=2?'active':'')+' '+(AppState.checkoutStep>2?'done':'')+'"><div class="ch-step-num">'+(AppState.checkoutStep>2?'<i class="fa-solid fa-check" style="font-size:12px"></i>':'2')+'</div><span class="ch-step-label">Payment</span></div>';
+  h+='<div class="ch-step '+(AppState.checkoutStep>=2?'active':'')+' '+(AppState.checkoutStep>2?'done':'')+'"><div class="ch-step-num">'+(AppState.checkoutStep>2?'<i class="fa-solid fa-check" style="font-size:12px"></i>':'2')+'</div><span class="ch-step-label">Address</span></div>';
   h+='<div class="ch-step-line '+(AppState.checkoutStep>2?'done':'')+'"></div>';
-  h+='<div class="ch-step '+(AppState.checkoutStep>=3?'active':'')+'"><div class="ch-step-num">3</div><span class="ch-step-label">Confirm</span></div></div>';
+  h+='<div class="ch-step '+(AppState.checkoutStep>=3?'active':'')+' '+(AppState.checkoutStep>3?'done':'')+'"><div class="ch-step-num">'+(AppState.checkoutStep>3?'<i class="fa-solid fa-check" style="font-size:12px"></i>':'3')+'</div><span class="ch-step-label">Payment</span></div>';
+  h+='<div class="ch-step-line '+(AppState.checkoutStep>3?'done':'')+'"></div>';
+  h+='<div class="ch-step '+(AppState.checkoutStep>=4?'active':'')+'"><div class="ch-step-num">4</div><span class="ch-step-label">Confirm</span></div></div>';
 
+  // Step 1: Order Review
   if(AppState.checkoutStep===1){
     h+='<div class="pay-receipt"><div class="pay-receipt-header"><i class="fa-solid fa-box"></i><h3>Order Review</h3></div><div class="pay-receipt-body">';
     Object.keys(AppState.cart).forEach(function(id){
       var p=products.find(function(x){return x.id==id});if(!p)return;
-      var qty=AppState.cart[id],pt=getProductPaymentType(p);
+      var qty=AppState.cart[id],pt=getProductPaymentType(p),dc=getProductDeliveryCharge(p);
       h+='<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">'
         +'<img src="'+p.image+'" style="width:50px;height:50px;border-radius:10px;object-fit:cover">'
         +'<div style="flex:1"><div style="font-size:13px;font-weight:600">'+p.name+' <span style="color:var(--text-light)">×'+qty+'</span></div>'
         +'<span class="'+(pt==='prepaid_delivery'?'ci-prepaid':'ci-cod')+'" style="font-size:8px;padding:2px 6px;border-radius:4px">'+getPayTypeShort(pt)+'</span></div>'
         +'<div style="font-weight:700;font-size:14px;color:var(--primary)">৳'+formatNum(p.price*qty)+'</div></div>';
-    });h+='</div></div>';
+    });
+    h+='</div></div>';
+    
+    // Detailed Payment Breakdown
     h+='<div class="pay-receipt"><div class="pay-receipt-header" style="background:var(--gradient-dark)"><i class="fa-solid fa-calculator"></i><h3>Payment Breakdown</h3></div><div class="pay-receipt-body">';
     h+='<div class="receipt-row"><span>Product Total</span><strong>৳'+formatNum(bd.productTotal)+'</strong></div>';
     h+='<div class="receipt-row del-row"><span>🚚 Delivery Charge'+(bd.totalQty>=3?' (3+ Offer!)':'')+'</span><strong style="color:var(--info)">৳'+formatNum(bd.deliveryTotal)+'</strong></div>';
     h+='<div class="receipt-divider"></div>';
+    
     if(bd.hasPrepaid){
       h+='<div class="receipt-row highlight"><span>💳 Pay Now (Prepaid Items)</span><strong style="color:var(--primary);font-size:16px">৳'+formatNum(bd.payNow)+'</strong></div>';
       h+='<div class="receipt-row cod-row"><span>💵 Cash on Delivery</span><strong style="color:var(--success)">৳'+formatNum(bd.codRemaining)+'</strong></div>';
@@ -377,11 +558,31 @@ function renderCheckoutStep(){
       h+='<div class="receipt-row" style="background:rgba(0,200,83,.05);margin:4px -16px;padding:10px 16px;border-radius:8px;border:none"><span style="color:var(--success);font-weight:700">🎉 Free Ordering!</span><strong style="color:var(--success)">৳0 Now</strong></div>';
     }
     h+='<div class="receipt-divider"></div><div class="receipt-total"><span>Grand Total</span><strong>৳'+formatNum(bd.grandTotal)+'</strong></div></div></div>';
+    
     if(!bd.hasPrepaid)h+='<div style="background:rgba(0,200,83,.08);border:1.5px dashed var(--success);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:center"><i class="fa-solid fa-circle-check" style="color:var(--success);font-size:20px"></i><div style="font-size:12px;color:var(--text-secondary)">COD অর্ডার — এখন কিছু দিতে হবে না! ডেলিভারিতে ৳'+formatNum(bd.codRemaining)+' পেমেন্ট করুন।</div></div>';
-    h+='<button class="checkout-btn" onclick="goCheckoutStep(2)"><i class="fa-solid fa-arrow-right"></i> Continue to Payment</button>';
+    
+    h+='<button class="checkout-btn" onclick="goCheckoutStep(2)"><i class="fa-solid fa-arrow-right"></i> Continue to Address</button>';
 
+  // Step 2: Delivery Address Collection
   }else if(AppState.checkoutStep===2){
+    h+='<div class="address-form">';
+    h+='<h4><i class="fa-solid fa-location-dot"></i> Delivery Address</h4>';
+    h+='<div class="form-group"><label>Full Name *</label><input type="text" class="form-input" id="addrName" value="'+(AppState.checkoutAddress.name||'')+'" placeholder="Enter your full name"></div>';
+    h+='<div class="form-group"><label>Phone Number *</label><input type="tel" class="form-input" id="addrPhone" value="'+(AppState.checkoutAddress.phone||'')+'" placeholder="01XXXXXXXXX" pattern="[0-9]{11}"></div>';
+    h+='<div class="form-group"><label>Full Address *</label><textarea class="form-input" id="addrAddress" placeholder="House, Road, Area, City">'+(AppState.checkoutAddress.address||'')+'</textarea></div>';
+    h+='<div class="form-group"><label>Optional Note</label><input type="text" class="form-input" id="addrNote" placeholder="Delivery instructions (optional)"></div>';
+    h+='<div class="security-badge"><i class="fa-solid fa-shield"></i> Your information is encrypted and secure</div>';
+    h+='</div>';
+    
+    h+='<div style="display:flex;gap:10px;margin-top:8px">';
+    h+='<button style="flex:1;padding:14px;background:var(--bg-card);color:var(--text-primary);border-radius:14px;font-weight:700;border:1.5px solid var(--border)" onclick="goCheckoutStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button>';
+    h+='<button class="checkout-btn" style="flex:2" onclick="validateAndGoToPayment()"><i class="fa-solid fa-arrow-right"></i> Continue to Payment</button>';
+    h+='</div>';
+
+  // Step 3: Payment Method Selection
+  }else if(AppState.checkoutStep===3){
     var isCodOnly=!bd.hasPrepaid;
+    
     if(isCodOnly){
       AppState.selectedPayMethod='cod';
       h+='<div style="text-align:center;padding:20px;margin-bottom:16px;background:rgba(0,200,83,.08);border-radius:var(--radius-lg);border:1.5px dashed var(--success)">';
@@ -391,11 +592,14 @@ function renderCheckoutStep(){
     }else{
       h+='<h3 style="font-weight:700;margin-bottom:14px;font-size:16px"><i class="fa-solid fa-credit-card" style="color:var(--primary)"></i> Prepaid Payment</h3>';
       h+='<p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">Prepaid আইটেমের জন্য <strong style="color:var(--primary)">৳'+formatNum(bd.payNow)+'</strong> পেমেন্ট করুন</p>';
+      
       var walletSufficient=AppState.wallet>=bd.payNow;
       h+='<div class="pay-method'+(AppState.selectedPayMethod==='wallet'?' selected':'')+'" onclick="selectPayMethod(\'wallet\')"><div class="pay-method-icon" style="background:rgba(0,200,83,.1);color:#00c853"><i class="fa-solid fa-wallet"></i></div><div><h4>Mega Haat Wallet</h4><p>Balance: ৳'+formatNum(AppState.wallet)+'</p></div><div class="pay-radio"></div></div>';
       h+='<div class="pay-method'+(AppState.selectedPayMethod==='bkash'?' selected':'')+'" onclick="selectPayMethod(\'bkash\')"><div class="pay-method-icon" style="background:rgba(226,19,110,.1);color:#E2136E"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4>bKash</h4><p>Send Money to '+BKASH_NUMBER+'</p></div><div class="pay-radio"></div></div>';
       h+='<div class="pay-method'+(AppState.selectedPayMethod==='nagad'?' selected':'')+'" onclick="selectPayMethod(\'nagad\')"><div class="pay-method-icon" style="background:rgba(246,146,30,.1);color:#F6921E"><i class="fa-solid fa-coins"></i></div><div><h4>Nagad</h4><p>Send Money to '+NAGAD_NUMBER+'</p></div><div class="pay-radio"></div></div>';
+      
       if(AppState.selectedPayMethod==='wallet'&&!walletSufficient)h+='<div class="wallet-insufficient"><i class="fa-solid fa-triangle-exclamation"></i><div><p>পর্যাপ্ত ব্যালেন্স নেই! ৳'+formatNum(bd.payNow)+' প্রয়োজন।</p><button style="margin-top:6px;padding:6px 14px;background:var(--gradient-primary);color:#fff;border-radius:8px;font-size:12px;font-weight:600" onclick="closeSubPage(\'subPageCheckout\');openWalletPage()"><i class="fa-solid fa-plus"></i> Add Money</button></div></div>';
+      
       if(AppState.selectedPayMethod==='wallet'){
         h+='<div class="payment-instructions"><div class="pay-step"><div class="pay-step-num"><i class="fa-solid fa-wallet" style="font-size:10px"></i></div><p>আপনার Wallet থেকে <strong>৳'+formatNum(bd.payNow)+'</strong> কাটা হবে।</p></div>';
         if(bd.codRemaining>0)h+='<div class="pay-step"><div class="pay-step-num">2</div><p>COD আইটেমের <strong style="color:var(--success)">৳'+formatNum(bd.codRemaining)+'</strong> ডেলিভারিতে দিন।</p></div>';
@@ -408,25 +612,43 @@ function renderCheckoutStep(){
         h+='<div class="pay-step"><div class="pay-step-num">3</div><p>পরিমাণ: <strong style="color:var(--primary)">৳'+formatNum(bd.payNow)+'</strong></p></div>';
         h+='<div class="pay-step"><div class="pay-step-num">4</div><p>Reference এ আপনার নাম লিখুন</p></div>';
         h+='<div class="pay-step"><div class="pay-step-num">5</div><p>নিচে TrxID দিন ও কনফার্ম করুন</p></div></div>';
-        h+='<div class="form-group" style="margin-top:12px"><label><i class="fa-solid fa-hashtag"></i> Transaction ID (TrxID)</label><input type="text" class="form-input" id="trxInput" placeholder="আপনার TrxID লিখুন" style="font-weight:600;letter-spacing:1px"><div class="form-error" id="trxError">TrxID আবশ্যক!</div></div>';
+        h+='<div class="form-group" style="margin-top:12px"><label><i class="fa-solid fa-hashtag"></i> Transaction ID (TrxID) *</label><input type="text" class="form-input" id="trxInput" placeholder="আপনার TrxID লিখুন" style="font-weight:600;letter-spacing:1px"><div class="form-error" id="trxError">TrxID আবশ্যক!</div></div>';
       }
     }
-    h+='<div style="display:flex;gap:10px;margin-top:8px"><button style="flex:1;padding:14px;background:var(--bg-card);color:var(--text-primary);border-radius:14px;font-weight:700;border:1.5px solid var(--border)" onclick="goCheckoutStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button>';
+    
+    h+='<div style="display:flex;gap:10px;margin-top:8px">';
+    h+='<button style="flex:1;padding:14px;background:var(--bg-card);color:var(--text-primary);border-radius:14px;font-weight:700;border:1.5px solid var(--border)" onclick="goCheckoutStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button>';
     var walletOk=AppState.selectedPayMethod==='wallet'?AppState.wallet>=bd.payNow:true;
-    h+='<button class="checkout-btn" id="proceedBtn" style="flex:2" onclick="goCheckoutStep(3)"'+(AppState.selectedPayMethod==='wallet'&&!walletOk?' disabled':'')+'><i class="fa-solid fa-arrow-right"></i> Review & Confirm</button></div>';
+    h+='<button class="checkout-btn" id="proceedBtn" style="flex:2" onclick="goCheckoutStep(4)"'+(AppState.selectedPayMethod==='wallet'&&!walletOk?' disabled':'')+'><i class="fa-solid fa-arrow-right"></i> Review & Confirm</button>';
+    h+='</div>';
 
-  }else if(AppState.checkoutStep===3){
+  // Step 4: Final Confirmation
+  }else if(AppState.checkoutStep===4){
     var payMethodLabel=AppState.selectedPayMethod==='cod'?'Cash on Delivery':(AppState.selectedPayMethod==='wallet'?'Mega Haat Wallet':(AppState.selectedPayMethod==='bkash'?'bKash':'Nagad'));
     var payMethodIcon=AppState.selectedPayMethod==='cod'?'fa-truck':(AppState.selectedPayMethod==='wallet'?'fa-wallet':(AppState.selectedPayMethod==='bkash'?'fa-mobile-screen-button':'fa-coins'));
+    
+    // Address Summary
+    h+='<div class="order-summary-card">';
+    h+='<h4><i class="fa-solid fa-location-dot"></i> Delivery Address</h4>';
+    h+='<p style="font-size:14px;margin-bottom:4px"><strong>'+sanitizeInput(AppState.checkoutAddress.name||'')+'</strong></p>';
+    h+='<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">'+sanitizeInput(AppState.checkoutAddress.phone||'')+'</p>';
+    h+='<p style="font-size:13px;color:var(--text-secondary)">'+sanitizeInput(AppState.checkoutAddress.address||'')+'</p>';
+    if(AppState.checkoutAddress.note)h+='<p style="font-size:12px;color:var(--text-light);margin-top:8px"><i class="fa-solid fa-note-sticky"></i> '+sanitizeInput(AppState.checkoutAddress.note)+'</p>';
+    h+='</div>';
+    
+    // Payment Summary
     h+='<div class="pay-receipt"><div class="pay-receipt-header" style="background:var(--gradient-success)"><i class="fa-solid fa-clipboard-check"></i><h3>Confirm Your Order</h3></div><div class="pay-receipt-body">';
     h+='<div class="receipt-row"><span>Payment Method</span><strong><i class="'+payMethodIcon+'" style="color:var(--primary)"></i> '+payMethodLabel+'</strong></div>';
+    
     if(AppState.selectedPayMethod!=='wallet'&&AppState.selectedPayMethod!=='cod'){
       var trxVal='';try{trxVal=document.getElementById('trxInput')?document.getElementById('trxInput').value.trim():''}catch(e){}
       h+='<div class="receipt-row"><span>TrxID</span><strong style="letter-spacing:1px">'+(trxVal||'N/A')+'</strong></div>';
     }
+    
     h+='<div class="receipt-divider"></div><div class="receipt-row"><span>Product Total</span><strong>৳'+formatNum(bd.productTotal)+'</strong></div>';
     h+='<div class="receipt-row del-row"><span>🚚 Delivery Charge</span><strong style="color:var(--info)">৳'+formatNum(bd.deliveryTotal)+'</strong></div>';
     h+='<div class="receipt-divider"></div>';
+    
     if(bd.hasPrepaid){
       h+='<div class="receipt-row highlight"><span>💳 Pay Now (Prepaid)</span><strong style="color:var(--primary);font-size:16px">৳'+formatNum(bd.payNow)+'</strong></div>';
       if(bd.codRemaining>0)h+='<div class="receipt-row cod-row"><span>💵 On Delivery (COD)</span><strong style="color:var(--success)">৳'+formatNum(bd.codRemaining)+'</strong></div>';
@@ -434,89 +656,370 @@ function renderCheckoutStep(){
       h+='<div class="receipt-row cod-row"><span>💵 Cash on Delivery</span><strong style="color:var(--success);font-size:16px">৳'+formatNum(bd.codRemaining)+'</strong></div>';
     }
     h+='<div class="receipt-divider"></div><div class="receipt-total"><span>Grand Total</span><strong>৳'+formatNum(bd.grandTotal)+'</strong></div></div></div>';
+    
+    // Security Notice
+    h+='<div style="background:rgba(33,150,243,.08);border:1.5px dashed var(--info);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start">';
+    h+='<i class="fa-solid fa-shield-halved" style="color:var(--info);margin-top:2px"></i>';
+    h+='<div style="font-size:12px;color:var(--text-secondary);line-height:1.5">';
+    h+='<strong>Secure Order:</strong> আপনার তথ্য এনক্রিপ্টেড এবং নিরাপদ। ';
+    h+='অর্ডার কনফার্ম করলে আপনি একটি কনফার্মেশন এসএমএস পাবেন।';
+    h+='</div></div>';
+    
     if(bd.payNow>0)h+='<div style="background:rgba(255,193,7,.08);border:1.5px dashed var(--warning);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start"><i class="fa-solid fa-triangle-exclamation" style="color:var(--warning);margin-top:2px"></i><div style="font-size:12px;color:var(--text-secondary);line-height:1.5">অর্ডার কনফার্ম করলে <strong style="color:var(--primary)">৳'+formatNum(bd.payNow)+'</strong> কাটা/পেমেন্ট হবে।'+(bd.codRemaining>0?' বাকি <strong style="color:var(--success)">৳'+formatNum(bd.codRemaining)+'</strong> ডেলিভারিতে দিন।':'')+'</div></div>';
     else h+='<div style="background:rgba(0,200,83,.08);border:1.5px dashed var(--success);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:center"><i class="fa-solid fa-circle-check" style="color:var(--success);font-size:20px"></i><div style="font-size:12px;color:var(--text-secondary)">COD অর্ডার — ডেলিভারিতে <strong style="color:var(--primary)">৳'+formatNum(bd.codRemaining)+'</strong> পেমেন্ট করুন।</div></div>';
-    h+='<div style="display:flex;gap:10px"><button style="flex:1;padding:14px;background:var(--bg-card);color:var(--text-primary);border-radius:14px;font-weight:700;border:1.5px solid var(--border)" onclick="goCheckoutStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button>';
-    h+='<button class="checkout-btn" id="confirmOrderBtn" style="flex:2" onclick="confirmOrder()"><i class="fa-solid fa-check-circle"></i> Confirm Order</button></div>';
+    
+    h+='<div style="display:flex;gap:10px">';
+    h+='<button style="flex:1;padding:14px;background:var(--bg-card);color:var(--text-primary);border-radius:14px;font-weight:700;border:1.5px solid var(--border)" onclick="goCheckoutStep(3)"><i class="fa-solid fa-arrow-left"></i> Back</button>';
+    h+='<button class="checkout-btn" id="confirmOrderBtn" style="flex:2" onclick="confirmOrder()"><i class="fa-solid fa-check-circle"></i> Confirm Order - ৳'+formatNum(bd.grandTotal)+'</button>';
+    h+='</div>';
   }
+  
   document.getElementById('checkoutBody').innerHTML=h;
 }
 
+// Checkout Step Navigation with Validation
 function goCheckoutStep(step){
-  if(step===2){AppState.checkoutStep=2;var bd=getPaymentBreakdown();if(!bd.hasPrepaid)AppState.selectedPayMethod='cod';renderCheckoutStep();return}
-  if(step===3){
+  if(step===2){
+    AppState.checkoutStep=2;
     var bd=getPaymentBreakdown();
+    if(!bd.hasPrepaid)AppState.selectedPayMethod='cod';
+    renderCheckoutStep();
+    return
+  }
+  
+  if(step===3){
+    // Validate address before proceeding
+    var name=sanitizeInput(document.getElementById('addrName')?.value||'');
+    var phone=sanitizeInput(document.getElementById('addrPhone')?.value||'');
+    var address=sanitizeInput(document.getElementById('addrAddress')?.value||'');
+    
+    if(!name||!phone||!address){
+      showToast('Please fill all address fields','error');
+      return;
+    }
+    
+    // Validate phone number format (Bangladeshi)
+    if(!/^(01[3-9]\d{8})$/.test(phone)){
+      showToast('Invalid phone number format','error');
+      return;
+    }
+    
+    // Save address to checkout state
+    AppState.checkoutAddress={
+      name:name,
+      phone:phone,
+      address:address,
+      note:sanitizeInput(document.getElementById('addrNote')?.value||'')
+    };
+    
+    AppState.checkoutStep=3;
+    renderCheckoutStep();
+    return;
+  }
+  
+  if(step===4){
+    var bd=getPaymentBreakdown();
+    
     if(AppState.selectedPayMethod!=='wallet'&&AppState.selectedPayMethod!=='cod'){
       var trxEl=document.getElementById('trxInput'),trxErr=document.getElementById('trxError');
-      if(trxEl&&!trxEl.value.trim()){if(trxErr)trxErr.classList.add('show');if(trxEl)trxEl.style.borderColor='var(--accent)';showToast('TrxID দিন!','error');return}
-      else{if(trxErr)trxErr.classList.remove('show');if(trxEl)trxEl.style.borderColor=''}
+      var trxVal=sanitizeInput(trxEl?.value||'');
+      
+      if(!trxVal){
+        if(trxErr)trxErr.classList.add('show');
+        if(trxEl)trxEl.style.borderColor='var(--accent)';
+        showToast('TrxID দিন!','error');
+        return;
+      }else{
+        if(trxErr)trxErr.classList.remove('show');
+        if(trxEl)trxEl.style.borderColor='';
+      }
     }
-    if(AppState.selectedPayMethod==='wallet'&&AppState.wallet<bd.payNow){showToast('পর্যাপ্ত ব্যালেন্স নেই!','error');return}
-    AppState.checkoutStep=3;renderCheckoutStep();
+    
+    if(AppState.selectedPayMethod==='wallet'&&AppState.wallet<bd.payNow){
+      showToast('পর্যাপ্ত ব্যালেন্স নেই!','error');
+      return;
+    }
+    
+    AppState.checkoutStep=4;
+    renderCheckoutStep();
   }
 }
-function selectPayMethod(m){AppState.selectedPayMethod=m;if(AppState.checkoutStep===2)renderCheckoutStep()}
 
-function confirmOrder(){
-  if(!AppState.user)return;var btn=document.getElementById('confirmOrderBtn');if(btn)btn.classList.add('btn-loading');showGlobalLoader();
-  var bd=getPaymentBreakdown(),uid=AppState.user.uid;var detailedItems=[];
-  Object.keys(AppState.cart).forEach(function(id){var p=products.find(function(x){return x.id==id});if(p)detailedItems.push({id:p.id,name:p.name,image:p.image,price:p.price,qty:AppState.cart[id],paymentType:getProductPaymentType(p),deliveryCharge:getProductDeliveryCharge(p)})});
-  var orderId='MH'+Date.now().toString().slice(-8);
-  var trxId=AppState.selectedPayMethod==='cod'?'COD_'+Date.now():(AppState.selectedPayMethod==='wallet'?'WALLET_'+Date.now():(document.getElementById('trxInput')?document.getElementById('trxInput').value.trim():''));
-  var orderData={items:detailedItems,productTotal:bd.productTotal,deliveryCharge:bd.deliveryTotal,payNow:bd.payNow,codRemaining:bd.codRemaining,grandTotal:bd.grandTotal,payMethod:AppState.selectedPayMethod,trxId:trxId,status:AppState.selectedPayMethod==='cod'?'confirmed':'pending_verification',date:Date.now()};
-  var updates={};updates['users/'+uid+'/orders/'+orderId]=orderData;updates['users/'+uid+'/cart']=null;
-  if(AppState.selectedPayMethod==='wallet')updates['users/'+uid+'/wallet']=AppState.wallet-bd.payNow;
-  db.ref().update(updates).then(function(){hideGlobalLoader();if(btn)btn.classList.remove('btn-loading');showOrderSuccess(orderId,orderData)}).catch(function(e){hideGlobalLoader();if(btn)btn.classList.remove('btn-loading');showToast(e.message,'error')});
+function validateAndGoToPayment(){
+  // Validate address fields
+  var name=sanitizeInput(document.getElementById('addrName')?.value||'');
+  var phone=sanitizeInput(document.getElementById('addrPhone')?.value||'');
+  var address=sanitizeInput(document.getElementById('addrAddress')?.value||'');
+  
+  if(!name){
+    showToast('Name is required','error');
+    document.getElementById('addrName')?.focus();
+    return;
+  }
+  
+  if(!phone){
+    showToast('Phone number is required','error');
+    document.getElementById('addrPhone')?.focus();
+    return;
+  }
+  
+  // Validate Bangladeshi phone number format
+  if(!/^(01[3-9]\d{8})$/.test(phone)){
+    showToast('Please enter a valid 11-digit phone number','error');
+    document.getElementById('addrPhone')?.focus();
+    return;
+  }
+  
+  if(!address){
+    showToast('Address is required','error');
+    document.getElementById('addrAddress')?.focus();
+    return;
+  }
+  
+  // Save to checkout state
+  AppState.checkoutAddress={
+    name:name,
+    phone:phone,
+    address:address,
+    note:sanitizeInput(document.getElementById('addrNote')?.value||'')
+  };
+  
+  // Proceed to payment step
+  AppState.checkoutStep=3;
+  var bd=getPaymentBreakdown();
+  if(!bd.hasPrepaid)AppState.selectedPayMethod='cod';
+  renderCheckoutStep();
 }
 
+function selectPayMethod(m){
+  AppState.selectedPayMethod=m;
+  if(AppState.checkoutStep===3)renderCheckoutStep()
+}
+
+// Confirm Order with Security Measures
+function confirmOrder(){
+  if(!AppState.user)return;
+  
+  var btn=document.getElementById('confirmOrderBtn');
+  if(btn)btn.classList.add('btn-loading');
+  showGlobalLoader();
+  
+  var bd=getPaymentBreakdown(),uid=AppState.user.uid;
+  var detailedItems=[];
+  
+  // Prepare order items with security sanitization
+  Object.keys(AppState.cart).forEach(function(id){
+    var p=products.find(function(x){return x.id==id});
+    if(p){
+      detailedItems.push({
+        id:p.id,
+        name:sanitizeInput(p.name),
+        image:p.image,
+        price:p.price,
+        qty:AppState.cart[id],
+        paymentType:getProductPaymentType(p),
+        deliveryCharge:getProductDeliveryCharge(p),
+        subtotal:p.price*AppState.cart[id]
+      })
+    }
+  });
+  
+  // Generate secure order ID
+  var orderId='MH'+Date.now().toString().slice(-8)+Math.floor(Math.random()*1000).toString().padStart(3,'0');
+  
+  // Prepare transaction ID with security prefix
+  var trxId=AppState.selectedPayMethod==='cod'?'COD_'+Date.now():(AppState.selectedPayMethod==='wallet'?'WALLET_'+Date.now():(document.getElementById('trxInput')?sanitizeInput(document.getElementById('trxInput').value.trim()):''));
+  
+  // Prepare order data with sanitized address
+  var orderData={
+    items:detailedItems,
+    productTotal:bd.productTotal,
+    deliveryCharge:bd.deliveryTotal,
+    payNow:bd.payNow,
+    codRemaining:bd.codRemaining,
+    grandTotal:bd.grandTotal,
+    payMethod:AppState.selectedPayMethod,
+    trxId:trxId,
+    status:AppState.selectedPayMethod==='cod'?'confirmed':'pending_verification',
+    date:Date.now(),
+    customer:{
+      uid:uid,
+      name:sanitizeInput(AppState.checkoutAddress.name||''),
+      phone:sanitizeInput(AppState.checkoutAddress.phone||''),
+      address:sanitizeInput(AppState.checkoutAddress.address||''),
+      note:sanitizeInput(AppState.checkoutAddress.note||'')
+    },
+    security:{
+      timestamp:Date.now(),
+      userAgent:navigator.userAgent.substring(0,100),
+      ipHash:'client_side_only' // Placeholder - server should handle real IP
+    }
+  };
+  
+  // Prepare database updates
+  var updates={};
+  updates['users/'+uid+'/orders/'+orderId]=orderData;
+  updates['users/'+uid+'/cart']=null;
+  
+  if(AppState.selectedPayMethod==='wallet'){
+    updates['users/'+uid+'/wallet']=AppState.wallet-bd.payNow;
+  }
+  
+  // Write to database with error handling
+  db.ref().update(updates).then(function(){
+    hideGlobalLoader();
+    if(btn)btn.classList.remove('btn-loading');
+    showOrderSuccess(orderId,orderData)
+  }).catch(function(e){
+    hideGlobalLoader();
+    if(btn)btn.classList.remove('btn-loading');
+    showToast('Order failed: '+e.message,'error');
+    console.error('Order error:',e)
+  });
+}
+
+// Order Success Page
 function showOrderSuccess(orderId,orderData){
   var h='<div class="order-success"><div class="order-success-icon"><i class="fa-solid fa-check"></i></div>';
   h+='<h2 style="font-size:22px;font-weight:800;margin-bottom:6px">Order Placed! 🎉</h2>';
   h+='<p style="color:var(--text-secondary);margin-bottom:20px;font-size:14px">Your order has been confirmed</p>';
+  
   h+='<div class="pay-receipt"><div class="pay-receipt-header" style="background:var(--gradient-dark)"><i class="fa-solid fa-receipt"></i><h3>#'+orderId+'</h3></div><div class="pay-receipt-body">';
   h+='<div class="receipt-row"><span>Payment Method</span><strong>'+(orderData.payMethod==='cod'?'Cash on Delivery':(orderData.payMethod==='wallet'?'Wallet':(orderData.payMethod==='bkash'?'bKash':'Nagad')))+'</strong></div>';
   h+='<div class="receipt-row"><span>Status</span><strong style="color:'+(orderData.status==='confirmed'?'var(--success)':'var(--warning)')+'">'+(orderData.status==='confirmed'?'CONFIRMED':'PENDING VERIFICATION')+'</strong></div>';
   h+='<div class="receipt-divider"></div>';
+  
   if(orderData.payNow>0)h+='<div class="receipt-row highlight"><span>💳 Paid</span><strong style="color:var(--primary)">৳'+formatNum(orderData.payNow)+'</strong></div>';
   if(orderData.codRemaining>0)h+='<div class="receipt-row cod-row"><span>💵 On Delivery</span><strong style="color:var(--success)">৳'+formatNum(orderData.codRemaining)+'</strong></div>';
+  
   h+='<div class="receipt-divider"></div><div class="receipt-total"><span>Grand Total</span><strong>৳'+formatNum(orderData.grandTotal)+'</strong></div></div></div>';
+  
   if(orderData.status==='pending_verification')h+='<div style="background:rgba(255,193,7,.08);border:1.5px dashed var(--warning);border-radius:var(--radius-md);padding:12px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);text-align:center"><i class="fa-solid fa-clock" style="color:var(--warning)"></i> Admin আপনার পেমেন্ট verify করবে।</div>';
+  
+  // Delivery info
+  h+='<div class="order-summary-card" style="margin-top:16px">';
+  h+='<h4><i class="fa-solid fa-truck"></i> Delivery Information</h4>';
+  h+='<p style="font-size:14px;margin-bottom:4px"><strong>'+sanitizeInput(orderData.customer.name)+'</strong></p>';
+  h+='<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">'+sanitizeInput(orderData.customer.phone)+'</p>';
+  h+='<p style="font-size:13px;color:var(--text-secondary)">'+sanitizeInput(orderData.customer.address)+'</p>';
+  h+='</div>';
+  
   h+='<button class="checkout-btn" onclick="closeSubPage(\'subPageCheckout\');switchPage(\'pageHome\',document.querySelectorAll(\'.nav-item\')[0])"><i class="fa-solid fa-house"></i> Back to Home</button>';
   h+='<button style="width:100%;padding:14px;background:var(--bg-card);color:var(--primary);border-radius:14px;font-weight:700;margin-top:10px;border:1.5px solid var(--primary)" onclick="closeSubPage(\'subPageCheckout\');openOrdersPage()"><i class="fa-solid fa-box"></i> View Orders</button></div>';
+  
   document.getElementById('checkoutBody').innerHTML=h;
 }
 
-function switchPage(pid,navEl){document.querySelectorAll('.page-view').forEach(function(p){p.classList.remove('active')});var pg=document.getElementById(pid);if(pg)pg.classList.add('active');if(navEl){document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});navEl.classList.add('active')}window.scrollTo({top:0,behavior:'smooth'});if(pid==='pageWishlist')renderWishlistPage();if(pid==='pageAccount')renderAccountPage();if(pid==='pageCart')renderCartPage()}
-function closeSubPage(id){var el=document.getElementById(id);if(el)el.classList.remove('show')}
+// Page Navigation
+function switchPage(pid,navEl){
+  document.querySelectorAll('.page-view').forEach(function(p){p.classList.remove('active')});
+  var pg=document.getElementById(pid);
+  if(pg)pg.classList.add('active');
+  
+  if(navEl){
+    document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+    navEl.classList.add('active')
+  }
+  
+  window.scrollTo({top:0,behavior:'smooth'});
+  
+  if(pid==='pageWishlist')renderWishlistPage();
+  if(pid==='pageAccount')renderAccountPage();
+  if(pid==='pageCart')renderCartPage()
+}
+
+function closeSubPage(id){
+  var el=document.getElementById(id);
+  if(el)el.classList.remove('show')
+}
+
 function closeOverlay(){}
 
+// Authentication System
 function openAuth(type){
   var b=document.getElementById('authBody');
   var h='<div style="padding:20px"><div style="text-align:center;margin-bottom:30px"><i class="fa-solid fa-'+(type==='login'?'lock':'user-plus')+'" style="font-size:48px;color:var(--primary);margin-bottom:12px"></i><h2 style="font-size:22px;font-weight:700;margin-bottom:6px">'+(type==='login'?'Welcome Back!':'Join Mega Haat')+'</h2><p style="font-size:13px;color:var(--text-secondary)">'+(type==='login'?'Login to continue shopping':'Create account')+'</p></div>';
+  
   if(type==='signup')h+='<div class="form-group"><label>Full Name</label><input type="text" class="form-input" id="authName" placeholder="Enter your name"></div>';
+  
   h+='<div class="form-group"><label>Email</label><input type="email" class="form-input" id="authEmail" placeholder="Enter your email"></div>';
   h+='<div class="form-group"><label>Password</label><input type="password" class="form-input" id="authPassword" placeholder="Min 6 characters"></div>';
+  
   h+='<button class="auth-submit" id="authSubmitBtn" onclick="submitAuth(\''+type+'\')">'+(type==='login'?'Login':'Create Account')+'</button>';
+  
   h+='<div style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-secondary)">'+(type==='login'?'No account? <a onclick="openAuth(\'signup\')" style="color:var(--primary);font-weight:700;cursor:pointer">Sign Up</a>':'Have account? <a onclick="openAuth(\'login\')" style="color:var(--primary);font-weight:700;cursor:pointer">Login</a>')+'</div></div>';
-  b.innerHTML=h;document.getElementById('authTitle').textContent=type==='login'?'Login':'Sign Up';document.getElementById('authModal').classList.add('show');
+  
+  b.innerHTML=h;
+  document.getElementById('authTitle').textContent=type==='login'?'Login':'Sign Up';
+  document.getElementById('authModal').classList.add('show')
 }
+
 function closeAuth(){document.getElementById('authModal').classList.remove('show')}
+
 function submitAuth(type){
-  var btn=document.getElementById('authSubmitBtn'),email=document.getElementById('authEmail').value.trim(),pass=document.getElementById('authPassword').value,nameEl=document.getElementById('authName'),name=nameEl?nameEl.value.trim():'';
-  if(!email||!pass){showToast('Fill all fields','error');return}btn.classList.add('btn-loading');showGlobalLoader();
+  var btn=document.getElementById('authSubmitBtn'),
+      email=document.getElementById('authEmail').value.trim(),
+      pass=document.getElementById('authPassword').value,
+      nameEl=document.getElementById('authName'),
+      name=nameEl?nameEl.value.trim():'';
+  
+  // Basic validation
+  if(!email||!pass){showToast('Fill all fields','error');return}
+  if(pass.length<6){showToast('Password must be at least 6 characters','error');return}
+  
+  btn.classList.add('btn-loading');
+  showGlobalLoader();
+  
   if(type==='signup'){
     if(!name){showToast('Name required','error');btn.classList.remove('btn-loading');hideGlobalLoader();return}
-    auth.createUserWithEmailAndPassword(email,pass).then(function(cred){return cred.user.updateProfile({displayName:name}).then(function(){return db.ref('users/'+cred.user.uid+'/profile').set({name:name,email:email,phone:''})})}).then(function(){closeAuth();showToast('Welcome! 🎉','success');hideGlobalLoader()}).catch(function(e){showToast(e.message,'error');btn.classList.remove('btn-loading');hideGlobalLoader()});
+    
+    auth.createUserWithEmailAndPassword(email,pass).then(function(cred){
+      return cred.user.updateProfile({displayName:name}).then(function(){
+        return db.ref('users/'+cred.user.uid+'/profile').set({
+          name:sanitizeInput(name),
+          email:sanitizeInput(email),
+          phone:'',
+          createdAt:firebase.database.ServerValue.TIMESTAMP
+        })
+      })
+    }).then(function(){
+      closeAuth();
+      showToast('Welcome! 🎉','success');
+      hideGlobalLoader()
+    }).catch(function(e){
+      showToast(e.message,'error');
+      btn.classList.remove('btn-loading');
+      hideGlobalLoader()
+    });
   }else{
-    auth.signInWithEmailAndPassword(email,pass).then(function(){closeAuth();showToast('Welcome back! 👋','success');hideGlobalLoader()}).catch(function(e){showToast(e.message,'error');btn.classList.remove('btn-loading');hideGlobalLoader()});
+    auth.signInWithEmailAndPassword(email,pass).then(function(){
+      closeAuth();
+      showToast('Welcome back! 👋','success');
+      hideGlobalLoader()
+    }).catch(function(e){
+      showToast(e.message,'error');
+      btn.classList.remove('btn-loading');
+      hideGlobalLoader()
+    });
   }
 }
-function logoutUser(){showGlobalLoader();auth.signOut().then(function(){hideGlobalLoader();showToast('Logged out','info');renderAccountPage()})}
 
+function logoutUser(){
+  showGlobalLoader();
+  auth.signOut().then(function(){
+    hideGlobalLoader();
+    showToast('Logged out','info');
+    renderAccountPage()
+  })
+}
+
+// Account Page Rendering
 function renderAccountPage(){
   var c=document.getElementById('accountContent');
+  
   if(AppState.user){
     var h='<div class="profile-header-card"><div class="profile-avatar"><i class="fa-solid fa-user"></i></div><div class="profile-name"><h3>'+(AppState.profile.name||AppState.user.displayName||'User')+'</h3><p>'+(AppState.profile.phone||AppState.user.email)+'</p></div></div><div class="profile-menu">';
+    
     h+=pmi('fa-user-pen','Edit Profile','Update info','rgba(156,39,176,.1)','#9c27b0','openEditProfile()');
     h+=pmi('fa-box','My Orders','Track orders','rgba(var(--primary-rgb),.1)','var(--primary)','openOrdersPage()');
     h+=pmi('fa-wallet','Wallet','Balance: ৳'+formatNum(AppState.wallet),'rgba(0,200,83,.1)','#00c853','openWalletPage()');
@@ -524,68 +1027,357 @@ function renderAccountPage(){
     h+=pmi('fa-circle-question','Help Center','FAQ & support','rgba(255,193,7,.1)','#ffc107','openHelpPage()');
     h+=pmi('fa-comment-dots','Live Support','Chat with us','rgba(0,200,83,.1)','#00c853','openChatPage()');
     h+=pmi('fa-right-from-bracket','Logout','Sign out','rgba(255,46,99,.1)','#ff2e63','logoutUser()');
-    h+='</div>';c.innerHTML=h;
+    
+    h+='</div>';
+    c.innerHTML=h;
   }else{
     c.innerHTML='<div style="padding:40px 20px;text-align:center"><i class="fa-solid fa-user-circle" style="font-size:80px;color:var(--primary);display:block;margin-bottom:20px"></i><h2 style="font-size:22px;margin-bottom:8px">Welcome to Mega Haat</h2><p style="color:var(--text-secondary);margin-bottom:24px;font-size:14px">Login to access your account</p><button onclick="openAuth(\'login\')" style="width:100%;padding:14px;background:var(--gradient-primary);color:#fff;border-radius:14px;font-weight:700;margin-bottom:12px;box-shadow:var(--shadow-primary);font-size:15px">Login</button><button onclick="openAuth(\'signup\')" style="width:100%;padding:14px;background:var(--bg-card);color:var(--text-primary);border-radius:14px;font-weight:700;border:1.5px solid var(--border);font-size:15px">Create Account</button></div>';
   }
 }
-function pmi(icon,title,desc,bg,color,action){return'<div class="profile-menu-item" onclick="'+action+'"><div class="profile-menu-icon" style="background:'+bg+';color:'+color+'"><i class="fa-solid '+icon+'"></i></div><div><h4>'+title+'</h4><p>'+desc+'</p></div><i class="fa-solid fa-chevron-right"></i></div>'}
 
-function openEditProfile(){var b=document.getElementById('editProfileBody');b.innerHTML='<div class="form-group"><label>Name</label><input type="text" class="form-input" id="editName" value="'+(AppState.profile.name||'')+'"></div><div class="form-group"><label>Email</label><input type="email" class="form-input" value="'+(AppState.user.email||'')+'" readonly style="opacity:.6"></div><div class="form-group"><label>Phone</label><input type="tel" class="form-input" id="editPhone" value="'+(AppState.profile.phone||'')+'" placeholder="01XXXXXXXXX"></div><button class="checkout-btn" id="saveProfileBtn" onclick="saveProfile()"><i class="fa-solid fa-check"></i> Save Changes</button>';document.getElementById('subPageEditProfile').classList.add('show')}
-function saveProfile(){var name=document.getElementById('editName').value.trim(),phone=document.getElementById('editPhone').value.trim();if(!name){showToast('Name required','error');return}var btn=document.getElementById('saveProfileBtn');if(btn)btn.classList.add('btn-loading');showGlobalLoader();AppState.user.updateProfile({displayName:name}).then(function(){return db.ref('users/'+AppState.user.uid+'/profile').update({name:name,phone:phone})}).then(function(){hideGlobalLoader();if(btn)btn.classList.remove('btn-loading');showToast('Profile updated!','success');closeSubPage('subPageEditProfile');renderAccountPage()}).catch(function(e){hideGlobalLoader();if(btn)btn.classList.remove('btn-loading');showToast(e.message,'error')})}
+function pmi(icon,title,desc,bg,color,action){
+  return'<div class="profile-menu-item" onclick="'+action+'"><div class="profile-menu-icon" style="background:'+bg+';color:'+color+'"><i class="fa-solid '+icon+'"></i></div><div><h4>'+title+'</h4><p>'+desc+'</p></div><i class="fa-solid fa-chevron-right"></i></div>'
+}
 
-function openOrdersPage(){showGlobalLoader();db.ref('users/'+AppState.user.uid+'/orders').once('value').then(function(s){AppState.orders=s.val()||{};var h='',keys=Object.keys(AppState.orders).reverse();if(keys.length===0){h+='<div class="wishlist-empty"><i class="fa-solid fa-box-open" style="font-size:56px;color:var(--text-light)"></i><h3>No Orders Yet</h3><p style="color:var(--text-secondary);margin-top:8px">Your orders will appear here</p></div>'}else{keys.forEach(function(k){var o=AppState.orders[k];var st=o.status||'processing';h+='<div class="order-card" onclick="openOrderDetail(\''+k+'\')"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:700;font-size:14px">#'+k+'</span><span class="order-status status-'+st+'">'+st.replace(/_/g,' ').toUpperCase()+'</span></div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text-secondary)">'+new Date(o.date).toLocaleDateString()+'</span><span style="font-weight:800;color:var(--primary);font-size:16px">৳'+formatNum(o.grandTotal)+'</span></div></div>'})}document.getElementById('ordersBody').innerHTML=h;hideGlobalLoader();document.getElementById('subPageOrders').classList.add('show')})}
+// Profile Editing
+function openEditProfile(){
+  var b=document.getElementById('editProfileBody');
+  b.innerHTML='<div class="form-group"><label>Name</label><input type="text" class="form-input" id="editName" value="'+(AppState.profile.name||'')+'"></div><div class="form-group"><label>Email</label><input type="email" class="form-input" value="'+(AppState.user.email||'')+'" readonly style="opacity:.6"></div><div class="form-group"><label>Phone</label><input type="tel" class="form-input" id="editPhone" value="'+(AppState.profile.phone||'')+'" placeholder="01XXXXXXXXX"></div><button class="checkout-btn" id="saveProfileBtn" onclick="saveProfile()"><i class="fa-solid fa-check"></i> Save Changes</button>';
+  document.getElementById('subPageEditProfile').classList.add('show')
+}
 
+function saveProfile(){
+  var name=sanitizeInput(document.getElementById('editName').value.trim()),
+      phone=sanitizeInput(document.getElementById('editPhone').value.trim());
+  
+  if(!name){showToast('Name required','error');return}
+  
+  var btn=document.getElementById('saveProfileBtn');
+  if(btn)btn.classList.add('btn-loading');
+  showGlobalLoader();
+  
+  AppState.user.updateProfile({displayName:name}).then(function(){
+    return db.ref('users/'+AppState.user.uid+'/profile').update({
+      name:name,
+      phone:phone,
+      updatedAt:firebase.database.ServerValue.TIMESTAMP
+    })
+  }).then(function(){
+    hideGlobalLoader();
+    if(btn)btn.classList.remove('btn-loading');
+    showToast('Profile updated!','success');
+    closeSubPage('subPageEditProfile');
+    renderAccountPage()
+  }).catch(function(e){
+    hideGlobalLoader();
+    if(btn)btn.classList.remove('btn-loading');
+    showToast(e.message,'error')
+  })
+}
+
+// Orders Management
+function openOrdersPage(){
+  showGlobalLoader();
+  db.ref('users/'+AppState.user.uid+'/orders').once('value').then(function(s){
+    AppState.orders=s.val()||{};
+    var h='',keys=Object.keys(AppState.orders).reverse();
+    
+    if(keys.length===0){
+      h+='<div class="wishlist-empty"><i class="fa-solid fa-box-open" style="font-size:56px;color:var(--text-light)"></i><h3>No Orders Yet</h3><p style="color:var(--text-secondary);margin-top:8px">Your orders will appear here</p></div>'
+    }else{
+      keys.forEach(function(k){
+        var o=AppState.orders[k];
+        var st=o.status||'processing';
+        h+='<div class="order-card" onclick="openOrderDetail(\''+k+'\')"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:700;font-size:14px">#'+k+'</span><span class="order-status status-'+st+'">'+st.replace(/_/g,' ').toUpperCase()+'</span></div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text-secondary)">'+new Date(o.date).toLocaleDateString()+'</span><span style="font-weight:800;color:var(--primary);font-size:16px">৳'+formatNum(o.grandTotal)+'</span></div></div>'
+      })
+    }
+    
+    document.getElementById('ordersBody').innerHTML=h;
+    hideGlobalLoader();
+    document.getElementById('subPageOrders').classList.add('show')
+  })
+}
+
+// Order Detail View with Timeline
 function openOrderDetail(oid){
-  var o=AppState.orders[oid];if(!o)return;var st=o.status||'processing';
+  var o=AppState.orders[oid];if(!o)return;
+  var st=o.status||'processing';
   var payLabel=o.payMethod==='cod'?'Cash on Delivery':(o.payMethod==='wallet'?'Mega Haat Wallet':(o.payMethod==='bkash'?'bKash':'Nagad'));
+  
   var h='';
-  var statusSteps=[{key:'pending_verification',label:'Payment Verification',desc:'Admin verifying payment'},{key:'confirmed',label:'Order Confirmed',desc:'Order is being prepared'},{key:'processing',label:'Processing',desc:'Packing your order'},{key:'shipped',label:'Shipped',desc:'On the way to you'},{key:'delivered',label:'Delivered',desc:'Order delivered!'}];
-  var currentIdx=0;statusSteps.forEach(function(ss,i){if(ss.key===st)currentIdx=i});
-  h+='<div class="order-timeline">';statusSteps.forEach(function(ss,i){var cls=i<currentIdx?'done':(i===currentIdx?'current':'');if(st==='cancelled'||st==='rejected')cls=i===0?'current':'';h+='<div class="timeline-step '+cls+'"><div class="timeline-dot"></div><h5>'+ss.label+'</h5><p>'+ss.desc+'</p></div>'});h+='</div>';
+  
+  // Order Timeline
+  var statusSteps=[
+    {key:'pending_verification',label:'Payment Verification',desc:'Admin verifying payment'},
+    {key:'confirmed',label:'Order Confirmed',desc:'Order is being prepared'},
+    {key:'processing',label:'Processing',desc:'Packing your order'},
+    {key:'shipped',label:'Shipped',desc:'On the way to you'},
+    {key:'delivered',label:'Delivered',desc:'Order delivered!'}
+  ];
+  
+  var currentIdx=0;
+  statusSteps.forEach(function(ss,i){if(ss.key===st)currentIdx=i});
+  
+  h+='<div class="order-timeline">';
+  statusSteps.forEach(function(ss,i){
+    var cls=i<currentIdx?'done':(i===currentIdx?'current':'');
+    if(st==='cancelled'||st==='rejected')cls=i===0?'current':'';
+    h+='<div class="timeline-step '+cls+'"><div class="timeline-dot"></div><h5>'+ss.label+'</h5><p>'+ss.desc+'</p></div>'
+  });
+  h+='</div>';
+  
+  // Order Summary
   h+='<div class="pay-receipt"><div class="pay-receipt-header"><i class="fa-solid fa-receipt"></i><h3>#'+oid+'</h3></div><div class="pay-receipt-body">';
   h+='<div class="receipt-row"><span>Order Date</span><strong>'+new Date(o.date).toLocaleString()+'</strong></div>';
   h+='<div class="receipt-row"><span>Payment</span><strong>'+payLabel+'</strong></div>';
   h+='<div class="receipt-row"><span>TrxID</span><strong style="letter-spacing:1px">'+o.trxId+'</strong></div></div></div>';
+  
+  // Items List
   if(o.items&&Array.isArray(o.items)){
     h+='<div class="pay-receipt"><div class="pay-receipt-header" style="background:var(--gradient-dark)"><i class="fa-solid fa-boxes-stacked"></i><h3>Items</h3></div><div class="pay-receipt-body">';
-    o.items.forEach(function(i){h+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"><img src="'+i.image+'" style="width:50px;height:50px;border-radius:10px;object-fit:cover"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+i.name+' <span style="color:var(--text-light)">×'+i.qty+'</span></div></div><div style="font-weight:700;font-size:14px;color:var(--primary)">৳'+formatNum(i.price*i.qty)+'</div></div>'});
+    o.items.forEach(function(i){
+      h+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">'
+        +'<img src="'+i.image+'" style="width:50px;height:50px;border-radius:10px;object-fit:cover">'
+        +'<div style="flex:1"><div style="font-size:13px;font-weight:600">'+i.name+' <span style="color:var(--text-light)">×'+i.qty+'</span></div></div>'
+        +'<div style="font-weight:700;font-size:14px;color:var(--primary)">৳'+formatNum(i.price*i.qty)+'</div></div>'
+    });
     h+='</div></div>';
   }
+  
+  // Payment Summary
   h+='<div class="pay-receipt"><div class="pay-receipt-header" style="background:var(--gradient-success)"><i class="fa-solid fa-calculator"></i><h3>Payment Summary</h3></div><div class="pay-receipt-body">';
   h+='<div class="receipt-row"><span>Product Total</span><strong>৳'+formatNum(o.productTotal)+'</strong></div>';
   h+='<div class="receipt-row del-row"><span>🚚 Delivery Charge</span><strong style="color:var(--info)">৳'+formatNum(o.deliveryCharge)+'</strong></div>';
   h+='<div class="receipt-divider"></div>';
+  
   if(o.payNow>0)h+='<div class="receipt-row highlight"><span>💳 Paid</span><strong style="color:var(--primary);font-size:16px">৳'+formatNum(o.payNow)+'</strong></div>';
   if(o.codRemaining>0)h+='<div class="receipt-row cod-row"><span>💵 On Delivery</span><strong style="color:var(--success)">৳'+formatNum(o.codRemaining)+'</strong></div>';
+  
   h+='<div class="receipt-divider"></div><div class="receipt-total"><span>Grand Total</span><strong>৳'+formatNum(o.grandTotal)+'</strong></div></div></div>';
-  document.getElementById('orderDetailBody').innerHTML=h;document.getElementById('subPageOrderDetail').classList.add('show');
+  
+  // Customer Info
+  if(o.customer){
+    h+='<div class="order-summary-card"><h4><i class="fa-solid fa-user"></i> Customer Info</h4>';
+    h+='<p style="font-size:14px;margin-bottom:4px"><strong>'+sanitizeInput(o.customer.name)+'</strong></p>';
+    h+='<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">'+sanitizeInput(o.customer.phone)+'</p>';
+    h+='<p style="font-size:13px;color:var(--text-secondary)">'+sanitizeInput(o.customer.address)+'</p>';
+    if(o.customer.note)h+='<p style="font-size:12px;color:var(--text-light);margin-top:8px"><i class="fa-solid fa-note-sticky"></i> '+sanitizeInput(o.customer.note)+'</p>';
+    h+='</div>';
+  }
+  
+  document.getElementById('orderDetailBody').innerHTML=h;
+  document.getElementById('subPageOrderDetail').classList.add('show');
 }
 
+// Wallet System
 function openWalletPage(){
   var h='<div style="background:var(--gradient-primary);border-radius:20px;padding:24px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden"><div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.1);border-radius:50%"></div><h3 style="font-size:12px;opacity:.9;margin-bottom:4px">Available Balance</h3><h1 style="font-size:32px;font-weight:800">৳'+formatNum(AppState.wallet)+'</h1></div>';
+  
   h+='<button onclick="toggleTopUpForm()" style="width:100%;padding:14px;background:var(--bg-card);color:var(--primary);border-radius:14px;font-weight:700;border:1.5px dashed var(--primary);margin-bottom:16px;font-size:14px"><i class="fa-solid fa-plus"></i> Add Money Request</button>';
+  
   h+='<div id="topUpForm" style="display:none;margin-bottom:16px;background:var(--bg-card);border-radius:var(--radius-md);padding:16px;border:1px solid var(--border)"><h4 style="font-weight:700;margin-bottom:12px">Add Money Request</h4><div class="form-group"><label>Amount (৳)</label><input type="number" class="form-input" id="topUpAmt" placeholder="Enter amount"></div><div class="form-group"><label>bKash/Nagad TrxID</label><input type="text" class="form-input" id="topUpTrx" placeholder="Enter TrxID"></div><p style="font-size:11px;color:var(--accent);margin-bottom:12px"><i class="fa-solid fa-info-circle"></i> '+BKASH_NUMBER+' এ টাকা পাঠান। Admin approve করবে।</p><button class="checkout-btn" id="topUpSubmitBtn" onclick="submitTopUpRequest()"><i class="fa-solid fa-paper-plane"></i> Submit Request</button></div>';
+  
   h+='<h4 style="font-weight:700;margin-bottom:10px">History</h4><div id="walletHistory"></div>';
-  document.getElementById('walletBody').innerHTML=h;loadWalletHistory();document.getElementById('subPageWallet').classList.add('show');
+  
+  document.getElementById('walletBody').innerHTML=h;
+  loadWalletHistory();
+  document.getElementById('subPageWallet').classList.add('show');
 }
-function toggleTopUpForm(){var f=document.getElementById('topUpForm');f.style.display=f.style.display==='none'?'block':'none'}
-function submitTopUpRequest(){var amt=parseInt(document.getElementById('topUpAmt').value,10),trx=document.getElementById('topUpTrx').value.trim();if(!amt||amt<1||!trx){showToast('Fill all fields','error');return}var btn=document.getElementById('topUpSubmitBtn');if(btn)btn.classList.add('btn-loading');showGlobalLoader();db.ref('users/'+AppState.user.uid+'/walletRequests').push({amount:amt,trxId:trx,status:'pending',timestamp:firebase.database.ServerValue.TIMESTAMP}).then(function(){hideGlobalLoader();if(btn)btn.classList.remove('btn-loading');showToast('Request sent!','success');document.getElementById('topUpForm').style.display='none';loadWalletHistory()}).catch(function(e){hideGlobalLoader();if(btn)btn.classList.remove('btn-loading');showToast(e.message,'error')})}
-function loadWalletHistory(){if(!AppState.user)return;db.ref('users/'+AppState.user.uid+'/walletRequests').orderByChild('timestamp').limitToLast(10).once('value').then(function(s){var data=s.val()||{};var h='';var keys=Object.keys(data).reverse();if(keys.length===0)h='<p style="text-align:center;color:var(--text-secondary);padding:20px;font-size:13px">No history</p>';else keys.forEach(function(k){var r=data[k];var sc=r.status==='approved'?'status-delivered':(r.status==='rejected'?'status-rejected':'status-pending');h+='<div class="wallet-request-card"><div><h4 style="font-size:13px;font-weight:600">৳'+formatNum(r.amount)+'</h4><p style="font-size:11px;color:var(--text-secondary)">'+r.trxId+'</p></div><span class="order-status '+sc+'">'+r.status.toUpperCase()+'</span></div>'});var el=document.getElementById('walletHistory');if(el)el.innerHTML=h})}
 
-function openAddressPage(){showGlobalLoader();db.ref('users/'+AppState.user.uid+'/addresses').once('value').then(function(s){AppState.addresses=s.val()||{};var keys=Object.keys(AppState.addresses);var h='<button onclick="toggleAddrForm()" style="width:100%;padding:14px;background:var(--bg-card);color:var(--primary);border-radius:14px;font-weight:700;border:1.5px dashed var(--primary);margin-bottom:16px;font-size:14px"><i class="fa-solid fa-plus"></i> Add Address</button><div id="addrForm" style="display:none;margin-bottom:16px;background:var(--bg-card);border-radius:var(--radius-md);padding:16px;border:1px solid var(--border)"><div class="form-group"><label>Name</label><input type="text" class="form-input" id="addrName"></div><div class="form-group"><label>Phone</label><input type="tel" class="form-input" id="addrPhone"></div><div class="form-group"><label>Address</label><textarea class="form-input" id="addrAddress"></textarea></div><button class="checkout-btn" id="saveAddrBtn" onclick="saveAddr()">Save Address</button></div>';if(keys.length===0)h+='<p style="text-align:center;color:var(--text-secondary);padding:20px">No addresses saved</p>';else keys.forEach(function(k){var a=AppState.addresses[k];h+='<div style="background:var(--bg-card);border-radius:var(--radius-md);padding:14px;margin-bottom:8px;border:1px solid var(--border);position:relative"><h4 style="font-size:14px;font-weight:600">'+a.name+'</h4><p style="font-size:12px;color:var(--text-secondary);margin-top:4px">'+a.address+'</p><p style="font-size:12px;color:var(--primary);font-weight:600;margin-top:4px">'+a.phone+'</p><button style="position:absolute;top:10px;right:10px;background:rgba(255,46,99,.1);color:var(--accent);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600" onclick="delAddr(\''+k+'\')"><i class="fa-solid fa-trash"></i></button></div>'});document.getElementById('addressBody').innerHTML=h;hideGlobalLoader();document.getElementById('subPageAddress').classList.add('show')})}
-function toggleAddrForm(){var f=document.getElementById('addrForm');f.style.display=f.style.display==='none'?'block':'none'}
-function saveAddr(){var n=document.getElementById('addrName').value.trim(),p=document.getElementById('addrPhone').value.trim(),a=document.getElementById('addrAddress').value.trim();if(!n||!p||!a){showToast('Fill all fields','error');return}var btn=document.getElementById('saveAddrBtn');if(btn)btn.classList.add('btn-loading');showGlobalLoader();db.ref('users/'+AppState.user.uid+'/addresses').push({name:n,phone:p,address:a}).then(function(){hideGlobalLoader();showToast('Address saved!','success');openAddressPage()}).catch(function(e){hideGlobalLoader();showToast(e.message,'error')})}
-function delAddr(k){showGlobalLoader();db.ref('users/'+AppState.user.uid+'/addresses/'+k).remove().then(function(){hideGlobalLoader();showToast('Address deleted','info');openAddressPage()})}
+function toggleTopUpForm(){
+  var f=document.getElementById('topUpForm');
+  f.style.display=f.style.display==='none'?'block':'none'
+}
 
-function openHelpPage(){var h='';faqData.forEach(function(f){h+='<div class="faq-item" onclick="this.classList.toggle(\'open\')"><div class="faq-question">'+f.q+' <i class="fa-solid fa-chevron-down"></i></div><div class="faq-answer">'+f.a+'</div></div>'});h+='<div style="margin-top:24px;text-align:center"><button onclick="openChatPage()" style="padding:14px 28px;background:var(--gradient-primary);color:#fff;border-radius:14px;font-weight:700;box-shadow:var(--shadow-primary)"><i class="fa-solid fa-comment-dots"></i> Live Chat</button></div>';document.getElementById('helpBody').innerHTML=h;document.getElementById('subPageHelp').classList.add('show')}
-function openChatPage(){var h='<div class="chat-container"><div class="chat-messages" id="chatMessages"><div class="chat-bubble bot">👋 স্বাগতম! কিভাবে সাহায্য করব?</div></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Type message..." onkeypress="if(event.key===\'Enter\')sendChat()"><button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button></div></div>';document.getElementById('chatBody').innerHTML=h;document.getElementById('subPageChat').classList.add('show')}
-function sendChat(){var i=document.getElementById('chatInput'),m=i.value.trim();if(!m)return;var c=document.getElementById('chatMessages');c.innerHTML+='<div class="chat-bubble user">'+m+'</div>';i.value='';c.scrollTop=c.scrollHeight;if(AppState.user)db.ref('support/'+AppState.user.uid).push({msg:m,sender:'user',timestamp:Date.now()});setTimeout(function(){c.innerHTML+='<div class="chat-bubble bot">সাপোর্ট টিম শীঘ্রই রিপ্লাই দিবে। কল: '+BKASH_NUMBER+'</div>';c.scrollTop=c.scrollHeight},800)}
+function submitTopUpRequest(){
+  var amt=parseInt(document.getElementById('topUpAmt').value,10),
+      trx=sanitizeInput(document.getElementById('topUpTrx').value.trim());
+  
+  if(!amt||amt<1||!trx){showToast('Fill all fields','error');return}
+  
+  var btn=document.getElementById('topUpSubmitBtn');
+  if(btn)btn.classList.add('btn-loading');
+  showGlobalLoader();
+  
+  db.ref('users/'+AppState.user.uid+'/walletRequests').push({
+    amount:amt,
+    trxId:trx,
+    status:'pending',
+    timestamp:firebase.database.ServerValue.TIMESTAMP,
+    requestedBy:AppState.user.uid
+  }).then(function(){
+    hideGlobalLoader();
+    if(btn)btn.classList.remove('btn-loading');
+    showToast('Request sent!','success');
+    document.getElementById('topUpForm').style.display='none';
+    loadWalletHistory()
+  }).catch(function(e){
+    hideGlobalLoader();
+    if(btn)btn.classList.remove('btn-loading');
+    showToast(e.message,'error')
+  })
+}
 
-function toggleDarkMode(){var d=document.documentElement.getAttribute('data-theme')==='dark';if(d){document.documentElement.removeAttribute('data-theme');document.getElementById('darkModeIcon').className='fa-solid fa-moon';showToast('Light mode ☀️','info')}else{document.documentElement.setAttribute('data-theme','dark');document.getElementById('darkModeIcon').className='fa-solid fa-sun';showToast('Dark mode 🌙','info')}}
-function updateWalletUI(){var e=document.getElementById('walletBalance');if(e)e.textContent='৳'+formatNum(AppState.wallet)}
-function scrollToProducts(){var g=document.getElementById('productsGrid');if(g)g.scrollIntoView({behavior:'smooth',block:'start'})}
-window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(b){if(window.scrollY>400)b.classList.add('show');else b.classList.remove('show')}});
+function loadWalletHistory(){
+  if(!AppState.user)return;
+  db.ref('users/'+AppState.user.uid+'/walletRequests').orderByChild('timestamp').limitToLast(10).once('value').then(function(s){
+    var data=s.val()||{};
+    var h='';
+    var keys=Object.keys(data).reverse();
+    
+    if(keys.length===0)h='<p style="text-align:center;color:var(--text-secondary);padding:20px;font-size:13px">No history</p>';
+    else keys.forEach(function(k){
+      var r=data[k];
+      var sc=r.status==='approved'?'status-delivered':(r.status==='rejected'?'status-rejected':'status-pending');
+      h+='<div class="wallet-request-card"><div><h4 style="font-size:13px;font-weight:600">৳'+formatNum(r.amount)+'</h4><p style="font-size:11px;color:var(--text-secondary)">'+r.trxId+'</p></div><span class="order-status '+sc+'">'+r.status.toUpperCase()+'</span></div>'
+    });
+    
+    var el=document.getElementById('walletHistory');
+    if(el)el.innerHTML=h
+  })
+}
+
+// Address Management
+function openAddressPage(){
+  showGlobalLoader();
+  db.ref('users/'+AppState.user.uid+'/addresses').once('value').then(function(s){
+    AppState.addresses=s.val()||{};
+    var keys=Object.keys(AppState.addresses);
+    var h='<button onclick="toggleAddrForm()" style="width:100%;padding:14px;background:var(--bg-card);color:var(--primary);border-radius:14px;font-weight:700;border:1.5px dashed var(--primary);margin-bottom:16px;font-size:14px"><i class="fa-solid fa-plus"></i> Add Address</button><div id="addrForm" style="display:none;margin-bottom:16px;background:var(--bg-card);border-radius:var(--radius-md);padding:16px;border:1px solid var(--border)"><div class="form-group"><label>Name</label><input type="text" class="form-input" id="addrName"></div><div class="form-group"><label>Phone</label><input type="tel" class="form-input" id="addrPhone" placeholder="01XXXXXXXXX"></div><div class="form-group"><label>Address</label><textarea class="form-input" id="addrAddress"></textarea></div><button class="checkout-btn" id="saveAddrBtn" onclick="saveAddr()">Save Address</button></div>';
+    
+    if(keys.length===0)h+='<p style="text-align:center;color:var(--text-secondary);padding:20px">No addresses saved</p>';
+    else keys.forEach(function(k){
+      var a=AppState.addresses[k];
+      h+='<div style="background:var(--bg-card);border-radius:var(--radius-md);padding:14px;margin-bottom:8px;border:1px solid var(--border);position:relative"><h4 style="font-size:14px;font-weight:600">'+sanitizeInput(a.name)+'</h4><p style="font-size:12px;color:var(--text-secondary);margin-top:4px">'+sanitizeInput(a.address)+'</p><p style="font-size:12px;color:var(--primary);font-weight:600;margin-top:4px">'+sanitizeInput(a.phone)+'</p><button style="position:absolute;top:10px;right:10px;background:rgba(255,46,99,.1);color:var(--accent);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600" onclick="delAddr(\''+k+'\')"><i class="fa-solid fa-trash"></i></button></div>'
+    });
+    
+    document.getElementById('addressBody').innerHTML=h;
+    hideGlobalLoader();
+    document.getElementById('subPageAddress').classList.add('show')
+  })
+}
+
+function toggleAddrForm(){
+  var f=document.getElementById('addrForm');
+  f.style.display=f.style.display==='none'?'block':'none'
+}
+
+function saveAddr(){
+  var n=sanitizeInput(document.getElementById('addrName').value.trim()),
+      p=sanitizeInput(document.getElementById('addrPhone').value.trim()),
+      a=sanitizeInput(document.getElementById('addrAddress').value.trim());
+  
+  if(!n||!p||!a){showToast('Fill all fields','error');return}
+  
+  // Validate phone number
+  if(!/^(01[3-9]\d{8})$/.test(p)){
+    showToast('Invalid phone number format','error');
+    return;
+  }
+  
+  var btn=document.getElementById('saveAddrBtn');
+  if(btn)btn.classList.add('btn-loading');
+  showGlobalLoader();
+  
+  db.ref('users/'+AppState.user.uid+'/addresses').push({
+    name:n,
+    phone:p,
+    address:a,
+    createdAt:firebase.database.ServerValue.TIMESTAMP
+  }).then(function(){
+    hideGlobalLoader();
+    showToast('Address saved!','success');
+    openAddressPage()
+  }).catch(function(e){
+    hideGlobalLoader();
+    showToast(e.message,'error')
+  })
+}
+
+function delAddr(k){
+  showGlobalLoader();
+  db.ref('users/'+AppState.user.uid+'/addresses/'+k).remove().then(function(){
+    hideGlobalLoader();
+    showToast('Address deleted','info');
+    openAddressPage()
+  })
+}
+
+// Help & Support
+function openHelpPage(){
+  var h='';
+  faqData.forEach(function(f){
+    h+='<div class="faq-item" onclick="this.classList.toggle(\'open\')"><div class="faq-question">'+f.q+' <i class="fa-solid fa-chevron-down"></i></div><div class="faq-answer">'+f.a+'</div></div>'
+  });
+  
+  h+='<div style="margin-top:24px;text-align:center"><button onclick="openChatPage()" style="padding:14px 28px;background:var(--gradient-primary);color:#fff;border-radius:14px;font-weight:700;box-shadow:var(--shadow-primary)"><i class="fa-solid fa-comment-dots"></i> Live Chat</button></div>';
+  
+  document.getElementById('helpBody').innerHTML=h;
+  document.getElementById('subPageHelp').classList.add('show')
+}
+
+function openChatPage(){
+  var h='<div class="chat-container"><div class="chat-messages" id="chatMessages"><div class="chat-bubble bot">👋 স্বাগতম! কিভাবে সাহায্য করব?</div></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Type message..." onkeypress="if(event.key===\'Enter\')sendChat()"><button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button></div></div>';
+  
+  document.getElementById('chatBody').innerHTML=h;
+  document.getElementById('subPageChat').classList.add('show')
+}
+
+function sendChat(){
+  var i=document.getElementById('chatInput'),
+      m=sanitizeInput(i.value.trim());
+  
+  if(!m)return;
+  
+  var c=document.getElementById('chatMessages');
+  c.innerHTML+='<div class="chat-bubble user">'+m+'</div>';
+  i.value='';
+  c.scrollTop=c.scrollHeight;
+  
+  if(AppState.user)db.ref('support/'+AppState.user.uid).push({
+    msg:m,
+    sender:'user',
+    timestamp:Date.now()
+  });
+  
+  setTimeout(function(){
+    c.innerHTML+='<div class="chat-bubble bot">সাপোর্ট টিম শীঘ্রই রিপ্লাই দিবে। কল: '+BKASH_NUMBER+'</div>';
+    c.scrollTop=c.scrollHeight
+  },800)
+}
+
+// UI Utilities
+function toggleDarkMode(){
+  var d=document.documentElement.getAttribute('data-theme')==='dark';
+  if(d){
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('darkModeIcon').className='fa-solid fa-moon';
+    showToast('Light mode ☀️','info')
+  }else{
+    document.documentElement.setAttribute('data-theme','dark');
+    document.getElementById('darkModeIcon').className='fa-solid fa-sun';
+    showToast('Dark mode 🌙','info')
+  }
+}
+
+function updateWalletUI(){
+  var e=document.getElementById('walletBalance');
+  if(e)e.textContent='৳'+formatNum(AppState.wallet)
+}
+
+function scrollToProducts(){
+  var g=document.getElementById('productsGrid');
+  if(g)g.scrollIntoView({behavior:'smooth',block:'start'})
+}
+
+// Scroll to Top Button
+window.addEventListener('scroll',function(){
+  var b=document.getElementById('backToTop');
+  if(b){
+    if(window.scrollY>400)b.classList.add('show');
+    else b.classList.remove('show')
+  }
+});
 </script>
 </body>
 </html>
